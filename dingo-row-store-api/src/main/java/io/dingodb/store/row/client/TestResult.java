@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package io.dingodb.raft.option;
+package io.dingodb.store.row.client;
 
-import io.dingodb.raft.conf.ConfigurationManager;
-import io.dingodb.raft.entity.codec.LogEntryCodecFactory;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
-public class LogStorageOptions {
-    private ConfigurationManager configurationManager;
+@ToString
+public class TestResult {
+    private String testType;
+    private String threadId;
+    private int threadSize;
+    private int batchSize;
+    private int times;
+    private long totalGap;
 }

@@ -29,6 +29,8 @@ import io.dingodb.raft.entity.PeerId;
 import io.dingodb.raft.option.NodeOptions;
 import io.dingodb.raft.option.RaftLogStorageOptions;
 import io.dingodb.raft.rpc.RpcServer;
+import io.dingodb.raft.storage.LogStorage;
+import io.dingodb.raft.storage.impl.RocksDBLogStorage;
 import io.dingodb.raft.util.Describer;
 import io.dingodb.raft.util.Endpoint;
 import io.dingodb.raft.util.Requires;
@@ -106,36 +108,21 @@ public class RegionEngine implements Lifecycle<RegionEngineOptions>, Describer, 
         }
         nodeOpts.setInitialConf(initialConf);
         nodeOpts.setFsm(this.fsm);
-        final String raftDataPath = opts.getRaftDataPath();
-        try {
-            FileUtils.forceMkdir(new File(raftDataPath));
-        } catch (final Throwable t) {
-            LOG.error("Fail to make dir for raftDataPath {}.", raftDataPath);
-            return false;
-        }
-        if (Strings.isBlank(nodeOpts.getLogUri())) {
-            final Path logUri = Paths.get(raftDataPath, "log");
-            nodeOpts.setLogUri(logUri.toString());
-        }
+        String raftDataPath = opts.getRaftDataPath();
         if (Strings.isBlank(nodeOpts.getRaftMetaUri())) {
-            final Path meteUri = Paths.get(raftDataPath, "meta");
+            final Path meteUri = Paths.get(raftDataPath, "meta", region.getId());
             nodeOpts.setRaftMetaUri(meteUri.toString());
         }
         if (Strings.isBlank(nodeOpts.getSnapshotUri())) {
-            final Path snapshotUri = Paths.get(raftDataPath, "snapshot");
+            final Path snapshotUri = Paths.get(raftDataPath,  "snapshot", region.getId());
             nodeOpts.setSnapshotUri(snapshotUri.toString());
         }
+        LogStorage logStorage = nodeOpts.getServiceFactory()
+            .createLogStorage(this.region.getId(), this.storeEngine.getLogStore());
+        nodeOpts.setLogStorage(logStorage);
 
-        String storeOptionStr = "Null";
-        RaftStoreOptions raftStoreOptions = opts.getRaftStoreOptions();
-        if (raftStoreOptions != null) {
-            RaftLogStorageOptions raftLogStorageOptions = raftStoreOptions.getRaftLogStorageOptions();
-            nodeOpts.setRaftLogStorageOptions(raftLogStorageOptions);
-            storeOptionStr = raftStoreOptions.toString();
-        }
-
-        LOG.info("[RegionEngine: {}], log uri: {}, raft meta uri: {}, snapshot uri: {}. raftDBOptions:{}", this.region,
-            nodeOpts.getLogUri(), nodeOpts.getRaftMetaUri(), nodeOpts.getSnapshotUri(), storeOptionStr);
+        LOG.info("[RegionEngine: {}], raft meta uri: {}, snapshot uri: {}.", this.region,
+            nodeOpts.getRaftMetaUri(), nodeOpts.getSnapshotUri());
         final Endpoint serverAddress = opts.getServerAddress();
         final PeerId serverId = new PeerId(serverAddress, 0);
         final RpcServer rpcServer = this.storeEngine.getRpcServer();
@@ -160,7 +147,7 @@ public class RegionEngine implements Lifecycle<RegionEngineOptions>, Describer, 
                         .scheduleOn(scheduler)
                         .shutdownExecutorOnStop(scheduler != null)
                         .build();
-                    this.regionMetricsReporter.start(metricsReportPeriod, TimeUnit.SECONDS);
+                    //this.regionMetricsReporter.start(metricsReportPeriod, TimeUnit.SECONDS);
                 }
             }
             if (this.storeEngine.getPlacementDriverClient() instanceof RemotePlacementDriverClient) {

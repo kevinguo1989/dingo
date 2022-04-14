@@ -367,6 +367,20 @@ public abstract class AbstractPlacementDriverClient implements PlacementDriverCl
         }
     }
 
+    protected void updateConfByRegion(Region region) {
+        StringBuilder initialServerList = new StringBuilder();
+        if (region.getPeers() != null && region.getPeers().size() > 0) {
+            region.getPeers().forEach( peer -> initialServerList.append(peer.getEndpoint().toString() + ","));
+        }
+        if (initialServerList.length() > 0) {
+            initialServerList.deleteCharAt(initialServerList.length() - 1);
+        }
+        Configuration conf = new Configuration();
+        conf.parse(initialServerList.toString());
+        RouteTable.getInstance().updateConfiguration(JRaftHelper.getJRaftGroupId(clusterName, region.getId()), conf);
+        this.regionRouteTable.addOrUpdateRegion(region);
+    }
+
     @Override
     public String getClusterName() {
         return clusterName;

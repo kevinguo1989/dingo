@@ -14,15 +14,7 @@
  * limitations under the License.
  */
 
-package io.dingodb.raft.option;
+package io.dingodb.raft.storage;
 
-import io.dingodb.raft.conf.ConfigurationManager;
-import io.dingodb.raft.entity.codec.LogEntryCodecFactory;
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-public class LogStorageOptions {
-    private ConfigurationManager configurationManager;
+public interface LogStore {
 }

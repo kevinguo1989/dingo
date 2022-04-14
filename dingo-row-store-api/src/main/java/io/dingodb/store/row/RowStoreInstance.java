@@ -21,9 +21,13 @@ import io.dingodb.store.api.StoreInstance;
 import io.dingodb.store.row.client.DefaultDingoRowStore;
 import io.dingodb.store.row.errors.DingoRowStoreRuntimeException;
 import io.dingodb.store.row.options.DingoRowStoreOptions;
+import io.dingodb.store.row.options.RegionEngineOptions;
+import io.dingodb.store.row.options.StoreEngineOptions;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
 
@@ -46,6 +50,30 @@ public class RowStoreInstance implements StoreInstance {
             synchronized (DefaultDingoRowStore.class) {
                 if (kvStore == null) {
                     kvStore = new DefaultDingoRowStore();
+
+                    StoreEngineOptions storeEngineOptions = rowStoreOptions.getStoreEngineOptions();
+                    if (storeEngineOptions == null) {
+                        storeEngineOptions = new StoreEngineOptions();
+                    }
+
+                    List<RegionEngineOptions> regionEngineOptionsList = storeEngineOptions.getRegionEngineOptionsList();
+                    if (regionEngineOptionsList == null) {
+                        regionEngineOptionsList = new ArrayList<>();
+                    }
+
+                    for (int i = 0; i < 5; i++) {
+                        RegionEngineOptions options = new RegionEngineOptions();
+                        options.setRegionId(i + "");
+                        options.setStartKey(null);
+                        options.setEndKey(null);
+                        regionEngineOptionsList.add(options);
+                    }
+
+                    storeEngineOptions.setRegionEngineOptionsList(regionEngineOptionsList);
+                    rowStoreOptions.setStoreEngineOptions(storeEngineOptions);
+
+
+
                     if (!kvStore.init(rowStoreOptions)) {
                         throw new DingoRowStoreRuntimeException("Fail to start [DefaultDingoRowStore].");
                     }
