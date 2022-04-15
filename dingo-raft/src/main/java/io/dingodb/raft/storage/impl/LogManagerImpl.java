@@ -285,6 +285,7 @@ public class LogManagerImpl implements LogManager {
             }
             for (int i = 0; i < entries.size(); i++) {
                 final LogEntry entry = entries.get(i);
+                LOG.info("AppendEntry Index = {}, Term = {}", entry.getId().getIndex(), entry.getId().getTerm());
                 // Set checksum after checkAndResolveConflict
                 if (this.raftOptions.isEnableLogEntryChecksum()) {
                     entry.setChecksum(entry.checksum());

@@ -45,6 +45,10 @@ public class RegionRouteTable {
     private final NavigableMap<byte[], String> rangeTable         = new TreeMap<>(keyBytesComparator);
     private final Map<String, Region> regionTable        = Maps.newHashMap();
 
+    public Map<String, Region> getRegionTable() {
+        return regionTable;
+    }
+
     public Region getRegionById(final String regionId) {
         final StampedLock stampedLock = this.stampedLock;
         long stamp = stampedLock.tryOptimisticRead();

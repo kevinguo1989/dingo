@@ -671,7 +671,7 @@ public class RocksDBLogStorage implements LogStorage, Describer {
                 this.db.deleteRange(this.confHandle, getKeyBytes(startIndex), getKeyBytes(firstIndexKept));
                 Long times = doCompactByTimes(this.path);
                 long endMS = System.nanoTime();
-                LOG.info("truncate Prefix: dbPath:{}, startIndex:{}, endIndex:{}, diff:{}, cost:{}, compactFlag:{}",
+                LOG.debug("truncate Prefix: dbPath:{}, startIndex:{}, endIndex:{}, diff:{}, cost:{}, compactFlag:{}",
                     this.path,
                     startIndex,
                     firstIndexKept,
@@ -703,7 +703,7 @@ public class RocksDBLogStorage implements LogStorage, Describer {
 
                 Long times = doCompactByTimes(this.path);
                 Long endMS = System.nanoTime();
-                LOG.info("truncate Suffix: dbPath:{}, last startIndex:{}, endIndex:{} diff:{}, cost:{}, compactFlag:{}",
+                LOG.debug("truncate Suffix: dbPath:{}, last startIndex:{}, endIndex:{} diff:{}, cost:{}, compactFlag:{}",
                     this.path,
                     lastIndexKept,
                     lastIndex,
