@@ -26,6 +26,7 @@ import lombok.ToString;
 @Setter
 @ToString
 public class CoordinatorExtOptions {
+    private String dataPath;
     private StoreDBOptions storeDBOptions;
     private ClOptions cliOptions;
     private int capacity;

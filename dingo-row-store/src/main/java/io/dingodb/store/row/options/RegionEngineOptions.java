@@ -38,15 +38,13 @@ public class RegionEngineOptions implements Copiable<RegionEngineOptions> {
     // Should extends from StoreEngineOptions
     private String      raftGroupId;
     // Should extends from StoreEngineOptions
-    private String      raftDataPath;
-    // Should extends from StoreEngineOptions
     private Endpoint serverAddress;
+    private String raftDataPath;
     // Should extends from StoreEngineOptions
     private String      initialServerList;
     // Can extends from StoreEngineOptions
     private long        metricsReportPeriod;
     private HeartbeatOptions          heartbeatOptions;
-    private RaftStoreOptions raftStoreOptions;
 
     public void setStartKey(String startKey) {
         this.startKey = startKey;
@@ -72,7 +70,6 @@ public class RegionEngineOptions implements Copiable<RegionEngineOptions> {
         copy.setServerAddress(this.serverAddress);
         copy.setInitialServerList(this.initialServerList);
         copy.setMetricsReportPeriod(this.metricsReportPeriod);
-        copy.setRaftStoreOptions(this.raftStoreOptions);
         return copy;
     }
 }

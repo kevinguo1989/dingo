@@ -99,20 +99,20 @@ public class RemotePlacementDriverClient extends AbstractPlacementDriverClient {
             }
             for (final Region region : regions) {
                 super.regionRouteTable.addOrUpdateRegion(region);
+                super.updateConfByRegion(region);
             }
         }
     }
 
     @Override
+    public String getStoreId(final StoreEngineOptions opts) {
+        final Endpoint selfEndpoint = opts.getServerAddress();
+        return this.metadataRpcClient.getStoreInfo(this.clusterId, selfEndpoint).getId();
+    }
+
+    @Override
     public Store getStoreMetadata(final StoreEngineOptions opts) {
         final Endpoint selfEndpoint = opts.getServerAddress();
-
-        /**
-         * for debugger.
-         */
-        for (RegionEngineOptions opt : opts.getRegionEngineOptionsList()) {
-            LOG.info("RegionEngineOptions-before: update from local conf. opt:{}", opt.toString());
-        }
 
         // remote conf is the preferred
         final Store remoteStore = this.metadataRpcClient.getStoreInfo(this.clusterId, selfEndpoint);
@@ -146,13 +146,6 @@ public class RemotePlacementDriverClient extends AbstractPlacementDriverClient {
                 engineOptions.setInitialServerList(initServerList);
                 engineOptions.setMetricsReportPeriod(metricsReportPeriodMs);
                 opts.getRegionEngineOptionsList().add(engineOptions);
-            }
-
-            /**
-             * for debugger.
-             */
-            for (RegionEngineOptions opt : opts.getRegionEngineOptionsList()) {
-                LOG.info("RegionEngineOptions-After: update from remote PD. opt:{}", opt.toString());
             }
             return remoteStore;
         }

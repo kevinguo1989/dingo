@@ -16,19 +16,16 @@
 
 package io.dingodb.store.row.options;
 
+import io.dingodb.raft.entity.codec.LogEntryCodecFactory;
 import io.dingodb.raft.option.RaftLogStorageOptions;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 public class RaftStoreOptions {
-    private String                dataPath;
+    private String dataPath;
     private RaftLogStorageOptions raftLogStorageOptions;
-
-    @Override
-    public String toString() {
-        return "RaftDBOptions{" + "dataPath='" + dataPath + '\'' + ", raftLogStorageOptions=" + raftLogStorageOptions
-            + '}';
-    }
 }

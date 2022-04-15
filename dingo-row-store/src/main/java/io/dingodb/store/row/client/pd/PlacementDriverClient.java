@@ -37,6 +37,8 @@ public interface PlacementDriverClient extends Lifecycle<PlacementDriverOptions>
      */
     long getClusterId();
 
+    String getStoreId(final StoreEngineOptions opts);
+
     /**
      * Query the region by region id.
      */

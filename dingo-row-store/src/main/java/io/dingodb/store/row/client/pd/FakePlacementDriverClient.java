@@ -62,6 +62,11 @@ public class FakePlacementDriverClient extends AbstractPlacementDriverClient {
     }
 
     @Override
+    public String getStoreId(StoreEngineOptions opts) {
+        return "-1";
+    }
+
+    @Override
     public Store getStoreMetadata(final StoreEngineOptions opts) {
         final Store store = new Store();
         final List<RegionEngineOptions> rOptsList = opts.getRegionEngineOptionsList();

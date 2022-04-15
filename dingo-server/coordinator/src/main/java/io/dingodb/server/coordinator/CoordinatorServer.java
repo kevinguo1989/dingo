@@ -19,13 +19,18 @@ package io.dingodb.server.coordinator;
 import io.dingodb.common.config.DingoOptions;
 import io.dingodb.net.NetService;
 import io.dingodb.net.NetServiceProvider;
+import io.dingodb.raft.JRaftServiceFactory;
 import io.dingodb.raft.Node;
 import io.dingodb.raft.NodeManager;
 import io.dingodb.raft.RaftServiceFactory;
 import io.dingodb.raft.StateMachine;
 import io.dingodb.raft.conf.Configuration;
+import io.dingodb.raft.core.DefaultJRaftServiceFactory;
 import io.dingodb.raft.entity.PeerId;
 import io.dingodb.raft.option.NodeOptions;
+import io.dingodb.raft.option.RaftLogStoreOptions;
+import io.dingodb.raft.storage.impl.RocksDBLogStorage;
+import io.dingodb.raft.storage.impl.RocksDBLogStore;
 import io.dingodb.raft.util.Endpoint;
 import io.dingodb.server.api.LogLevelApi;
 import io.dingodb.server.coordinator.cluster.service.CoordinatorClusterService;
@@ -155,17 +160,21 @@ public class CoordinatorServer {
         nodeOpts.setInitialConf(initialConf);
         nodeOpts.setFsm(stateMachine);
 
-        final String dbPath = svrOpts.getOptions().getStoreDBOptions().getDataPath();
-        if (Strings.isBlank(nodeOpts.getLogUri())) {
-            final String logUri = Paths.get(dbPath, COORDINATOR, "log").toString();
-            try {
-                FileUtils.forceMkdir(new File(logUri));
-                log.info("data path created: {}", logUri);
-            } catch (final Throwable t) {
-                throw new RuntimeException("Fail to make dir for dbPath: " + logUri);
-            }
-            nodeOpts.setLogUri(logUri);
+        final String dbPath = svrOpts.getOptions().getDataPath();
+        final String logUri = Paths.get(dbPath, COORDINATOR, "log").toString();
+        try {
+            FileUtils.forceMkdir(new File(logUri));
+            log.info("data path created: {}", logUri);
+        } catch (final Throwable t) {
+            throw new RuntimeException("Fail to make dir for dbPath: " + logUri);
         }
+        RaftLogStoreOptions logStoreOptions = new RaftLogStoreOptions();
+        logStoreOptions.setDataPath(logUri);
+        logStoreOptions.setLogEntryCodecFactory(DefaultJRaftServiceFactory.newInstance().createLogEntryCodecFactory());
+        RocksDBLogStore logStore = new RocksDBLogStore();
+        logStore.init(logStoreOptions);
+        RocksDBLogStorage logStorage = new RocksDBLogStorage("coordinator", logStore);
+        nodeOpts.setLogStorage(logStorage);
         if (Strings.isBlank(nodeOpts.getRaftMetaUri())) {
             final String meteUri = Paths.get(dbPath, COORDINATOR, "meta").toString();
             nodeOpts.setRaftMetaUri(meteUri);
@@ -193,6 +202,7 @@ public class CoordinatorServer {
 
     private RocksRawKVStore createRocksDB() {
         final String dbPath = svrOpts.getOptions().getStoreDBOptions().getDataPath();
+        svrOpts.getOptions().setDataPath(dbPath);
         final String dataPath = Paths.get(dbPath, COORDINATOR, "db").toString();
         svrOpts.getOptions().getStoreDBOptions().setDataPath(dbPath);
 
@@ -200,7 +210,7 @@ public class CoordinatorServer {
             FileUtils.forceMkdir(new File(dataPath));
             log.info("data path created: {}", dataPath);
         } catch (final Throwable t) {
-            throw new RuntimeException("Fail to make dir for dbPath: " + dataPath);
+            throw new RuntimeException("Fail to make dir for dbPath: " + dbPath);
         }
 
         RocksRawKVStore rocksRawKVStore = new RocksRawKVStore();
