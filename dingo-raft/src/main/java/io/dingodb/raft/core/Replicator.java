@@ -116,6 +116,10 @@ public class Replicator implements ThreadId.OnError {
 
     private final String metricName;
 
+    private final int maxGapHeartbeatTimes = Runtime.getRuntime().availableProcessors() * 2 + 1;
+
+    private volatile int currentGapHeartbeatTimes = 0;
+
     private int getAndIncrementReqSeq() {
         final int prev = this.reqSeq;
         this.reqSeq++;
@@ -1211,6 +1215,26 @@ public class Replicator implements ThreadId.OnError {
                 doUnlock = false;
                 r.sendProbeRequest();
                 r.startHeartbeatTimer(startTimeMs);
+                return;
+            }
+            if (response.hasLastLogIndex()
+                && response.getLastLogIndex() < r.options.getLogManager().getLastLogIndex()
+                && ++r.currentGapHeartbeatTimes > r.maxGapHeartbeatTimes) {
+                if (isLogDebugEnabled) {
+                    sb.append(" fail, response term ") //
+                        .append(response.getTerm()) //
+                        .append(" lastLogIndex ") //
+                        .append(response.getLastLogIndex())
+                        .append(" less than this node lastLogIndex ")
+                        .append(r.options.getLogManager().getLastLogIndex())
+                        .append(" more than ")
+                        .append(r.currentGapHeartbeatTimes)
+                        .append(" times.");
+                    LOG.debug(sb.toString());
+                }
+                LOG.warn("Heartbeat to peer {} failure, try to send a probe request.", r.options.getPeerId());
+                doUnlock = false;
+                r.options.getNode().failReplicator(r.options.getPeerId());
                 return;
             }
             if (isLogDebugEnabled) {

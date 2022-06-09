@@ -1639,6 +1639,7 @@ public class NodeImpl implements Node, RaftServerService {
                 event.reset();
                 event.done = task.getDone();
                 event.entry = entry;
+                LOG.info("NODE apply Task: {} : {}", task.getExpectedTerm(), task);
                 event.expectedTerm = task.getExpectedTerm();
             };
             // Blocking
@@ -1683,6 +1684,7 @@ public class NodeImpl implements Node, RaftServerService {
                         "Node {} ignore PreVoteRequest from {}, term={},"
                             + "currTerm={}, because the leader {}'s lease is still valid.",
                         getNodeId(), request.getServerId(), request.getTerm(), this.currTerm, this.leaderId);
+                    checkReplicator(candidateId);
                     break;
                 }
                 if (request.getTerm() < this.currTerm) {
@@ -2275,7 +2277,7 @@ public class NodeImpl implements Node, RaftServerService {
     @SuppressWarnings({ "LoopStatementThatDoesntLoop", "ConstantConditions" })
     private void handleStepDownTimeout() {
         do {
-            this.readLock.lock();
+            //this.readLock.lock();
             try {
                 if (this.state.compareTo(State.STATE_TRANSFERRING) > 0) {
                     LOG.debug("Node {} stop step-down timer, term={}, state={}.", getNodeId(), this.currTerm,
@@ -2293,12 +2295,12 @@ public class NodeImpl implements Node, RaftServerService {
                 }
                 return;
             } finally {
-                this.readLock.unlock();
+                //this.readLock.unlock();
             }
         }
         while (false);
 
-        this.writeLock.lock();
+        //this.writeLock.lock();
         try {
             if (this.state.compareTo(State.STATE_TRANSFERRING) > 0) {
                 LOG.debug("Node {} stop step-down timer, term={}, state={}.", getNodeId(), this.currTerm, this.state);
@@ -2310,7 +2312,7 @@ public class NodeImpl implements Node, RaftServerService {
                 checkDeadNodes(this.conf.getOldConf(), monotonicNowMs, true);
             }
         } finally {
-            this.writeLock.unlock();
+            //this.writeLock.unlock();
         }
     }
 

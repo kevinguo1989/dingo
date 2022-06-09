@@ -37,6 +37,10 @@ dependencies {
     implementation project(":dingo-server:dingo-server-protocol")
     implementation project(":dingo-server:dingo-server-driver-proxy")
 
+    implementation project(":dingo-store-api")
+    implementation project(":dingo-store-memory")
+    implementation project(":dingo-store-raft")
+    implementation project(":dingo-store-rocksdb")
 }
 
 task fatJar(type: Jar) {

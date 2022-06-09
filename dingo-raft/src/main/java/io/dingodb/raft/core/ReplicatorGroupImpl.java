@@ -169,6 +169,13 @@ public class ReplicatorGroupImpl implements ReplicatorGroup {
     @Override
     public void checkReplicator(final PeerId peer, final boolean lockNode) {
         final ThreadId rid = this.replicatorMap.get(peer);
+        LOG.info("checkReplicator, staus : {}, peerid : {}", this.commonOptions.getNode().getNodeState(), peer);
+        for (PeerId peerId: this.replicatorMap.keySet()) {
+            LOG.info("replicatorMap : {}", peerId);
+        }
+        for (PeerId peerId: this.failureReplicators.keySet()) {
+            LOG.info("failureReplicators : {}", peerId);
+        }
         if (rid == null) {
             // Create replicator if it's not found for leader.
             final NodeImpl node = this.commonOptions.getNode();

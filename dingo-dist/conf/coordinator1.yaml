@@ -1,0 +1,11 @@
+cluster:
+    name: dingo
+exchange:
+    host: localhost
+    port: 19181
+server:
+    dataPath: /tmp/dingo/data/meta1
+    raft:
+        group: COORDINATOR_RAFT
+        initRaftSvrList: localhost:19181,localhost:19182,localhost:19183
+    monitorPort: 7088
