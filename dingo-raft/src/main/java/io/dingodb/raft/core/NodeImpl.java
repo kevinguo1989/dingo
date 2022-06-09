@@ -2277,7 +2277,7 @@ public class NodeImpl implements Node, RaftServerService {
     @SuppressWarnings({ "LoopStatementThatDoesntLoop", "ConstantConditions" })
     private void handleStepDownTimeout() {
         do {
-            //this.readLock.lock();
+            this.readLock.lock();
             try {
                 if (this.state.compareTo(State.STATE_TRANSFERRING) > 0) {
                     LOG.debug("Node {} stop step-down timer, term={}, state={}.", getNodeId(), this.currTerm,
@@ -2295,12 +2295,12 @@ public class NodeImpl implements Node, RaftServerService {
                 }
                 return;
             } finally {
-                //this.readLock.unlock();
+                this.readLock.unlock();
             }
         }
         while (false);
 
-        //this.writeLock.lock();
+        this.writeLock.lock();
         try {
             if (this.state.compareTo(State.STATE_TRANSFERRING) > 0) {
                 LOG.debug("Node {} stop step-down timer, term={}, state={}.", getNodeId(), this.currTerm, this.state);
@@ -2312,7 +2312,7 @@ public class NodeImpl implements Node, RaftServerService {
                 checkDeadNodes(this.conf.getOldConf(), monotonicNowMs, true);
             }
         } finally {
-            //this.writeLock.unlock();
+            this.writeLock.unlock();
         }
     }
 
