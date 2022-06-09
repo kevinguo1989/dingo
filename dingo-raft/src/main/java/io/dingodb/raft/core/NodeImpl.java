@@ -1390,7 +1390,7 @@ public class NodeImpl implements Node, RaftServerService {
                 final LogEntryAndClosure task = tasks.get(i);
                 if (task.expectedTerm != -1 && task.expectedTerm != this.currTerm) {
                     LOG.debug("Node {} can't apply task whose expectedTerm={} doesn't match currTerm={}.", getNodeId(),
-                        task.expectedTerm, this.currTerm);
+                        task.expectedTerm, this.currTerm, new Exception("EXCEPTED"));
                     if (task.done != null) {
                         final Status st = new Status(RaftError.EPERM,
                             "expected_term=%d doesn't match current_term=%d",
@@ -1401,6 +1401,7 @@ public class NodeImpl implements Node, RaftServerService {
                     continue;
                 }
                 if (!this.ballotBox.appendPendingTask(this.conf.getConf(),
+                    //LOG.debug();
                     this.conf.isStable() ? null : this.conf.getOldConf(), task.done)) {
                     Utils.runClosureInThread(task.done, new Status(RaftError.EINTERNAL, "Fail to append task."));
                     task.reset();
