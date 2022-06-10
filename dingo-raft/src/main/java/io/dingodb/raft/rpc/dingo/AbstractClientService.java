@@ -140,8 +140,7 @@ public abstract class AbstractClientService implements ClientService {
                     try {
                         result = RpcRequests.ErrorResponse.parseFrom(msg.content());
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("Recive ErrorMessage : {}", result.toString());
-                        }
+                            LOG.debug("Recive ErrorMessage {} : {}", ch.remoteLocation(), result.toString());                        }
                     } catch (InvalidProtocolBufferException ex) {
                         try {
                             ch.close();
@@ -153,6 +152,9 @@ public abstract class AbstractClientService implements ClientService {
                 }
                 invokeWithDone(result, done, future, ch);
             });
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Send Msg {} : {}", channel.remoteLocation(), message.content().toString());
+            }
             channel.send(message);
             return future;
         } catch (Exception e) {
