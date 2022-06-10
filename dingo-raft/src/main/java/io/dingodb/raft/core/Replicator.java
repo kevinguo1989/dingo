@@ -1153,6 +1153,7 @@ public class Replicator implements ThreadId.OnError {
         }
         final long startTimeMs = Utils.nowMs();
         Replicator r;
+        LOG.info("id.lock in heartbeat returned");
         if ((r = (Replicator) id.lock()) == null) {
             return;
         }
@@ -1264,6 +1265,7 @@ public class Replicator implements ThreadId.OnError {
         }
         final long startTimeMs = Utils.nowMs();
         Replicator r;
+        LOG.info("id.lock on rpcreturned");
         if ((r = (Replicator) id.lock()) == null) {
             return;
         }
