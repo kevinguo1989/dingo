@@ -95,12 +95,17 @@ public abstract class AbstractClientService implements ClientService {
         if (result instanceof RpcRequests.ErrorResponse) {
             status = handleErrorResponse((RpcRequests.ErrorResponse) result);
         } else {
-            final Descriptors.FieldDescriptor fd = result.getDescriptorForType() //
-                .findFieldByNumber(RpcResponseFactory.ERROR_RESPONSE_NUM);
-            if (fd != null && result.hasField(fd)) {
-                final RpcRequests.ErrorResponse eResp = (RpcRequests.ErrorResponse) result.getField(fd);
-                status = handleErrorResponse(eResp);
-                msg = eResp;
+            try {
+                final Descriptors.FieldDescriptor fd = result.getDescriptorForType() //
+                    .findFieldByNumber(RpcResponseFactory.ERROR_RESPONSE_NUM);
+                if (fd != null && result.hasField(fd)) {
+                    final RpcRequests.ErrorResponse eResp = (RpcRequests.ErrorResponse) result.getField(fd);
+                    status = handleErrorResponse(eResp);
+                    msg = eResp;
+                }
+            } catch (Exception e) {
+                status = new Status();
+                status.setCode(RaftError.ENOENT.getNumber());
             }
         }
         if (done != null) {
@@ -117,7 +122,7 @@ public abstract class AbstractClientService implements ClientService {
         try {
             channel.close();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            future.failure(e);
         }
         return future;
     }
@@ -140,7 +145,7 @@ public abstract class AbstractClientService implements ClientService {
                     try {
                         result = RpcRequests.ErrorResponse.parseFrom(msg.content());
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("Recive ErrorMessage : {}", result.toString());
+                            LOG.debug("Recive ErrorMessage {} : {}", ch.remoteLocation(), result.toString());
                         }
                     } catch (InvalidProtocolBufferException ex) {
                         try {
@@ -148,11 +153,14 @@ public abstract class AbstractClientService implements ClientService {
                         } catch (Exception exc) {
                             throw new RuntimeException(exc);
                         }
-                        LOG.error("Error Msg: {}", msg.content());
+                        LOG.error("Error Msg from {} : {}", ch.remoteLocation(), msg.content());
                     }
                 }
                 invokeWithDone(result, done, future, ch);
             });
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Send Msg {} : {}", channel.remoteLocation(), message.content().toString());
+            }
             channel.send(message);
             return future;
         } catch (Exception e) {
