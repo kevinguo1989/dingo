@@ -1,0 +1,7 @@
+cluster:
+    name: dingo
+exchange:
+    host: localhost
+    port: 8766
+client:
+    coordinatorExchangeSvrList: node1:19181,node2:19181,node3:19181

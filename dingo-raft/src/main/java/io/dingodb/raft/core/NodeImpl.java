@@ -1390,7 +1390,7 @@ public class NodeImpl implements Node, RaftServerService {
                 final LogEntryAndClosure task = tasks.get(i);
                 if (task.expectedTerm != -1 && task.expectedTerm != this.currTerm) {
                     LOG.debug("Node {} can't apply task whose expectedTerm={} doesn't match currTerm={}.", getNodeId(),
-                        task.expectedTerm, this.currTerm);
+                        task.expectedTerm, this.currTerm, new Exception("EXCEPTED"));
                     if (task.done != null) {
                         final Status st = new Status(RaftError.EPERM,
                             "expected_term=%d doesn't match current_term=%d",
@@ -1401,6 +1401,7 @@ public class NodeImpl implements Node, RaftServerService {
                     continue;
                 }
                 if (!this.ballotBox.appendPendingTask(this.conf.getConf(),
+                    //LOG.debug();
                     this.conf.isStable() ? null : this.conf.getOldConf(), task.done)) {
                     Utils.runClosureInThread(task.done, new Status(RaftError.EINTERNAL, "Fail to append task."));
                     task.reset();
@@ -1639,6 +1640,7 @@ public class NodeImpl implements Node, RaftServerService {
                 event.reset();
                 event.done = task.getDone();
                 event.entry = entry;
+                LOG.info("NODE apply Task: {} : {}", task.getExpectedTerm(), task);
                 event.expectedTerm = task.getExpectedTerm();
             };
             // Blocking
@@ -1683,6 +1685,7 @@ public class NodeImpl implements Node, RaftServerService {
                         "Node {} ignore PreVoteRequest from {}, term={},"
                             + "currTerm={}, because the leader {}'s lease is still valid.",
                         getNodeId(), request.getServerId(), request.getTerm(), this.currTerm, this.leaderId);
+                    checkReplicator(candidateId);
                     break;
                 }
                 if (request.getTerm() < this.currTerm) {
@@ -3603,8 +3606,8 @@ public class NodeImpl implements Node, RaftServerService {
     }
 
     @Override
-    public void failReplicator(PeerId peerId) {
-        replicatorGroup.failReplicator(peerId);
+    public void restartReplicator(PeerId peerId) {
+        replicatorGroup.restartReplicator(peerId);
     }
 
     public void snapshotByAppliedIndex() {
