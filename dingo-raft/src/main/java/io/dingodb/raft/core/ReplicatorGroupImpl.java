@@ -314,7 +314,7 @@ public class ReplicatorGroupImpl implements ReplicatorGroup {
     }
 
     @Override
-    public void failReplicator(PeerId peerId) {
+    public void restartReplicator(PeerId peerId) {
         synchronized (peerId) {
 //            ThreadId id = this.replicatorMap.remove(peerId);
 //            if (id != null) {
@@ -324,8 +324,11 @@ public class ReplicatorGroupImpl implements ReplicatorGroup {
 //                this.failureReplicators.put(newPeerId, replicatorType);
 //            }
             ThreadId id = this.replicatorMap.get(peerId);
-            ReplicatorType replicatorType = ReplicatorType.valueOf(((Replicator) id.getData()).getOpts().getReplicatorType().name());
-            stopReplicator(peerId);
+            ReplicatorType replicatorType = ReplicatorType.Follower;
+            if (id != null) {
+                replicatorType = ReplicatorType.valueOf(((Replicator) id.getData()).getOpts().getReplicatorType().name());
+                stopReplicator(peerId);
+            }
             PeerId newPeerId = peerId.copy();
             addReplicator(newPeerId, replicatorType);
         }

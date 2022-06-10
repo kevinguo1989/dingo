@@ -3606,8 +3606,8 @@ public class NodeImpl implements Node, RaftServerService {
     }
 
     @Override
-    public void failReplicator(PeerId peerId) {
-        replicatorGroup.failReplicator(peerId);
+    public void restartReplicator(PeerId peerId) {
+        replicatorGroup.restartReplicator(peerId);
     }
 
     public void snapshotByAppliedIndex() {
