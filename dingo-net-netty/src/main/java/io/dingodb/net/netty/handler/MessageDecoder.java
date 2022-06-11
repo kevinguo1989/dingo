@@ -49,6 +49,7 @@ public class MessageDecoder extends ByteToMessageDecoder {
             connection.receive(read(in));
         } catch (Exception e) {
             log.info("Decode Error: {}", e);
+            log.info("which null? : {}, {}, {}, {}", ctx == null, ctx.channel() == null, in == null, connection == null);
         }
     }
 

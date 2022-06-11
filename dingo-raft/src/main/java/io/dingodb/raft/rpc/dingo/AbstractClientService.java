@@ -95,12 +95,17 @@ public abstract class AbstractClientService implements ClientService {
         if (result instanceof RpcRequests.ErrorResponse) {
             status = handleErrorResponse((RpcRequests.ErrorResponse) result);
         } else {
-            final Descriptors.FieldDescriptor fd = result.getDescriptorForType() //
-                .findFieldByNumber(RpcResponseFactory.ERROR_RESPONSE_NUM);
-            if (fd != null && result.hasField(fd)) {
-                final RpcRequests.ErrorResponse eResp = (RpcRequests.ErrorResponse) result.getField(fd);
-                status = handleErrorResponse(eResp);
-                msg = eResp;
+            try {
+                final Descriptors.FieldDescriptor fd = result.getDescriptorForType() //
+                    .findFieldByNumber(RpcResponseFactory.ERROR_RESPONSE_NUM);
+                if (fd != null && result.hasField(fd)) {
+                    final RpcRequests.ErrorResponse eResp = (RpcRequests.ErrorResponse) result.getField(fd);
+                    status = handleErrorResponse(eResp);
+                    msg = eResp;
+                }
+            } catch (Exception e) {
+                status = new Status();
+                status.setCode(RaftError.ENOENT.getNumber());
             }
         }
         if (done != null) {
@@ -117,7 +122,9 @@ public abstract class AbstractClientService implements ClientService {
         try {
             channel.close();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            LOG.error("Invoke with done Close channel error {} : {}", channel.remoteLocation(), e);
+            //throw new RuntimeException(e);
+            future.failure(e);
         }
         return future;
     }
@@ -136,15 +143,19 @@ public abstract class AbstractClientService implements ClientService {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Recive Message {} : {}", ch.remoteLocation(), result.toString());
                     }
+                    LOG.info("Recive Message {} : {}", ch.remoteLocation(), result.toString());
                 } catch (InvalidProtocolBufferException e) {
                     try {
                         result = RpcRequests.ErrorResponse.parseFrom(msg.content());
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("Recive ErrorMessage {} : {}", ch.remoteLocation(), result.toString());                        }
+                            LOG.debug("Recive ErrorMessage {} : {}", ch.remoteLocation(), result.toString());
+                        }
+                        LOG.info("Recive ErrorMessage {} : {}", ch.remoteLocation(), result.toString());
                     } catch (InvalidProtocolBufferException ex) {
                         try {
                             ch.close();
                         } catch (Exception exc) {
+                            LOG.error("Close channel error {} : {}", ch.remoteLocation(), exc);
                             throw new RuntimeException(exc);
                         }
                         LOG.error("Error Msg: {}", msg.content());
@@ -155,9 +166,12 @@ public abstract class AbstractClientService implements ClientService {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Send Msg {} : {}", channel.remoteLocation(), message.content().toString());
             }
+            LOG.info("Send Msg {} : {}", channel.remoteLocation(), message.content().toString());
             channel.send(message);
+            LOG.info("Send Msg done : {}", channel.remoteLocation());
             return future;
         } catch (Exception e) {
+            LOG.info("Send Msg get error : {}", e);
             if (done != null) {
                 done.run(new Status(RaftError.ETIMEDOUT, "RPC exception:" + e.getMessage()));
             }
