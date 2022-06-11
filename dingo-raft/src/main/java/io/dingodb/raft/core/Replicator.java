@@ -1593,7 +1593,7 @@ public class Replicator implements ThreadId.OnError {
     /**
      * Send as many requests as possible.
      */
-    void sendEntries() {
+    synchronized void sendEntries() {
         boolean doUnlock = true;
         try {
             long prevSendIndex = -1;
