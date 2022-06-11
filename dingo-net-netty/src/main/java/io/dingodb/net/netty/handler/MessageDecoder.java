@@ -48,7 +48,7 @@ public class MessageDecoder extends ByteToMessageDecoder {
             }
             connection.receive(read(in));
         } catch (Exception e) {
-            log.info("Decode Error: {}", e);ß
+            log.info("Decode Error: {}", e);
         }
     }
 
