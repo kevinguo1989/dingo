@@ -134,8 +134,9 @@ public abstract class AbstractClientService implements ClientService {
                                                               RpcResponseClosure<T> done, ThrowableFunction<byte[], T> parser) {
         Location remote = new Location(endpoint.getIp(), endpoint.getPort());
         io.dingodb.net.Message message = new io.dingodb.net.Message(tag, request.toByteArray());
+        Channel channel = null;
         try {
-            Channel channel = netService.newChannel(remote, true);
+            channel = netService.newChannel(remote, true);
             FutureImpl<Message> future = new FutureImpl<>(channel);
             channel.registerMessageListener((msg, ch) -> {
                 Message result = null;
@@ -176,7 +177,7 @@ public abstract class AbstractClientService implements ClientService {
             if (done != null) {
                 done.run(new Status(RaftError.ETIMEDOUT, "RPC exception:" + e.getMessage()));
             }
-            FutureImpl<Message> failFuture = new FutureImpl<>();
+            FutureImpl<Message> failFuture = new FutureImpl<>(channel);
             failFuture.failure(e);
             return failFuture;
         }
