@@ -58,7 +58,7 @@ public abstract class AbstractClientService implements ClientService {
     }
 
     @Override
-    public boolean checkConnection(final Endpoint endpoint, final boolean createIfAbsent) {
+    public synchronized boolean checkConnection(final Endpoint endpoint, final boolean createIfAbsent) {
         Location remote = new Location(endpoint.getIp(), endpoint.getPort());
         Channel channel = null;
         try {
@@ -68,6 +68,7 @@ public abstract class AbstractClientService implements ClientService {
         } finally {
             if (channel != null) {
                 try {
+                    Thread.sleep(100);
                     channel.close();
                 } catch (Exception e) {
                     LOG.error("CheckConnection Error: {}", e.getMessage());
