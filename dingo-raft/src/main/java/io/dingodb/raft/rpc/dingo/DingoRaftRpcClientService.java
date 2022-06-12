@@ -22,10 +22,12 @@ import io.dingodb.raft.rpc.RaftClientService;
 import io.dingodb.raft.rpc.RpcRequests;
 import io.dingodb.raft.rpc.RpcResponseClosure;
 import io.dingodb.raft.util.Endpoint;
+import io.dingodb.raft.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class DingoRaftRpcClientService extends AbstractClientService implements RaftClientService {
 
@@ -39,6 +41,23 @@ public class DingoRaftRpcClientService extends AbstractClientService implements 
     @Override
     public void shutdown() {
 
+    }
+
+    @Override
+    public boolean checkConnection(final Endpoint endpoint, final boolean createIfAbsent) {
+        RpcRequests.PingRequest pingRequest = RpcRequests.PingRequest.newBuilder().setSendTimestamp(Utils.monotonicMs()).build();
+
+        Future<Message> pingFuture = ping(endpoint, pingRequest, 0, null);
+        RpcRequests.ErrorResponse errorResponse = null;
+        try {
+            errorResponse = (RpcRequests.ErrorResponse) pingFuture.get(500, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            return false;
+        }
+        if (errorResponse == null || errorResponse.getErrorCode() != 0) {
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -74,5 +93,9 @@ public class DingoRaftRpcClientService extends AbstractClientService implements 
     @Override
     public Future<Message> readIndex(Endpoint endpoint, RpcRequests.ReadIndexRequest request, int timeoutMs, RpcResponseClosure<RpcRequests.ReadIndexResponse> done) {
         return invokeWithDone(endpoint, Tags.READINDEX_REQUEST, request, done, RpcRequests.ReadIndexResponse::parseFrom);
+    }
+
+    public Future<Message> ping(Endpoint endpoint, RpcRequests.PingRequest request, int timeoutMs, RpcResponseClosure<RpcRequests.ErrorResponse> done) {
+        return invokeWithDone(endpoint, Tags.PING_REQUEST, request, done, RpcRequests.ErrorResponse::parseFrom);
     }
 }
