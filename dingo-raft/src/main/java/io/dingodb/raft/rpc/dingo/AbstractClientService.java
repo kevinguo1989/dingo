@@ -70,7 +70,8 @@ public abstract class AbstractClientService implements ClientService {
                 try {
                     channel.close();
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    LOG.error("CheckConnection Error: {}", e.getMessage());
+                    //throw new RuntimeException(e);
                 }
             }
         }
