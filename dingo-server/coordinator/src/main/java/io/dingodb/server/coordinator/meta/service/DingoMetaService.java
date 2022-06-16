@@ -21,6 +21,7 @@ import io.dingodb.common.Location;
 import io.dingodb.common.codec.PrimitiveCodec;
 import io.dingodb.common.config.DingoConfiguration;
 import io.dingodb.common.table.TableDefinition;
+import io.dingodb.common.util.ByteArrayUtils;
 import io.dingodb.common.util.ByteArrayUtils.ComparableByteArray;
 import io.dingodb.common.util.Optional;
 import io.dingodb.meta.MetaService;
@@ -40,6 +41,7 @@ import io.dingodb.server.protocol.meta.TablePart;
 import io.dingodb.server.protocol.meta.TablePartStats;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -143,6 +145,9 @@ public class DingoMetaService implements MetaService, MetaServiceApi {
                 );
             });
         });
+        for (Map.Entry<ByteArrayUtils.ComparableByteArray, Part> entry : result.entrySet()) {
+            log.info("{}, {}", Arrays.toString(entry.getKey().getBytes()), entry.getValue());
+        }
         return result;
     }
 

@@ -201,6 +201,9 @@ public class RaftStoreInstance implements StoreInstance {
         long startTime = System.currentTimeMillis();
         Part part = getPart(primaryKey);
         if (part == null) {
+            for (Map.Entry<byte[], Part> entry : startKeyPartMap.entrySet()) {
+                log.error("{} : {}", Arrays.toString(entry.getKey()), entry.getValue());
+            }
             throw new IllegalArgumentException(
                 "The primary key " + Arrays.toString(primaryKey) + " not in current instance."
             );

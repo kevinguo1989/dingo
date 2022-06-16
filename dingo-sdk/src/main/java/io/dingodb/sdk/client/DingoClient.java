@@ -30,6 +30,8 @@ import io.dingodb.server.api.ExecutorApi;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -188,6 +190,10 @@ public class DingoClient extends ClientBase {
                 return codec.mapKeyAndDecodeValue(key, executorApi.getValueByPrimaryKey(tableId, primaryKey));
             } catch (Exception e) {
                 exception = e;
+                log.error("Get key {} : {} Error.", key[0], Arrays.toString(primaryKey));
+                for (Map.Entry<ByteArrayUtils.ComparableByteArray, Part> entry : parts.entrySet()) {
+                    log.error("{}, {}", Arrays.toString(entry.getKey().getBytes()), entry.getValue());
+                }
                 log.error("get key value by key catch error,tableId:{} retryTime:{} ", tableId,  retryTime, e);
                 refreshTableMeta();
             } finally {
