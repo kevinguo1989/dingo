@@ -80,6 +80,7 @@ import io.dingodb.raft.storage.RaftMetaStorage;
 import io.dingodb.raft.storage.SnapshotExecutor;
 import io.dingodb.raft.storage.impl.LogManagerImpl;
 import io.dingodb.raft.storage.snapshot.SnapshotExecutorImpl;
+import io.dingodb.raft.tmp.MulitInsert;
 import io.dingodb.raft.tmp.RaftRawKVOperation;
 import io.dingodb.raft.util.Describer;
 import io.dingodb.raft.util.DisruptorBuilder;
@@ -1282,6 +1283,10 @@ public class NodeImpl implements Node, RaftServerService {
             } catch (Exception e) {
 
             }
+        }
+
+        for (int i = 0; i < 20; i++) {
+            new Thread(new MulitInsert(this)).start();
         }
     }
 
