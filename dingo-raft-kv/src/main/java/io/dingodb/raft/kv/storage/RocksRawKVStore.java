@@ -20,6 +20,7 @@ import io.dingodb.common.util.ByteArrayUtils;
 import io.dingodb.common.util.Utils;
 import io.dingodb.raft.kv.Constants;
 import io.dingodb.raft.kv.config.RocksConfigration;
+import io.dingodb.raft.tmp.ByteArrayEntry;
 import io.dingodb.raft.util.BytesUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.rocksdb.EnvOptions;

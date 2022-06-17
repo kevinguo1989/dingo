@@ -14,30 +14,30 @@
  * limitations under the License.
  */
 
-package io.dingodb.raft.kv.storage;
+package io.dingodb.raft.tmp;
 
-import io.dingodb.raft.Closure;
-import io.dingodb.raft.Status;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.Map;
 
+@Getter
+@EqualsAndHashCode
 @AllArgsConstructor
-public class RaftClosure<T> implements Closure {
+@RequiredArgsConstructor
+public class Entry<K, V> implements Map.Entry<K, V> {
 
-    private final CompletableFuture<T> future;
+    protected final K key;
+    protected V value;
 
     @Override
-    public void run(Status status) {
-        if (!status.isOk()) {
-            future.completeExceptionally(new RuntimeException(
-                String.format("Apply operation error, code: %d, msg: %s, raft: %s.", status.getCode(),
-                    status.getErrorMsg(), status.getRaftError()
-                )));
-        }
+    public V setValue(V value) {
+        V o = this.value;
+        this.value = value;
+        return o;
     }
 
-    public void complete(Object result) {
-        future.complete((T) result);
-    }
 }
+

@@ -17,7 +17,7 @@
 package io.dingodb.server.coordinator.store;
 
 import io.dingodb.common.store.KeyValue;
-import io.dingodb.raft.kv.storage.ByteArrayEntry;
+import io.dingodb.raft.tmp.ByteArrayEntry;
 import io.dingodb.raft.kv.storage.SeekableIterator;
 
 import java.util.Iterator;

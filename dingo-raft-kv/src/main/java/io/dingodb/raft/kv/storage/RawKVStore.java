@@ -16,6 +16,8 @@
 
 package io.dingodb.raft.kv.storage;
 
+import io.dingodb.raft.tmp.ByteArrayEntry;
+
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.zip.Checksum;

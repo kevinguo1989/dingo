@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.dingodb.raft.kv.storage;
+package io.dingodb.raft.tmp;
 
 import java.util.Arrays;
 import java.util.Objects;

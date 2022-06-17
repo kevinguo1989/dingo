@@ -80,6 +80,7 @@ import io.dingodb.raft.storage.RaftMetaStorage;
 import io.dingodb.raft.storage.SnapshotExecutor;
 import io.dingodb.raft.storage.impl.LogManagerImpl;
 import io.dingodb.raft.storage.snapshot.SnapshotExecutorImpl;
+import io.dingodb.raft.tmp.RaftRawKVOperation;
 import io.dingodb.raft.util.Describer;
 import io.dingodb.raft.util.DisruptorBuilder;
 import io.dingodb.raft.util.DisruptorMetricSet;
@@ -110,6 +111,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledFuture;
@@ -1264,6 +1266,23 @@ public class NodeImpl implements Node, RaftServerService {
         }
         this.confCtx.flush(this.conf.getConf(), this.conf.getOldConf());
         this.stepDownTimer.start();
+
+
+        this.writeLock.unlock();
+
+        for (int j = 0; j < 1000; j++) {
+            try {
+                long start = System.currentTimeMillis();
+                for (Integer i = 0; i < 10; i++) {
+                    byte b = i.byteValue();
+                    CompletableFuture future = RaftRawKVOperation.put(new byte[]{b}, new byte[]{b}).applyOnNode(this);
+                    future.get();
+                }
+                System.out.println("single put 10 times: " + (System.currentTimeMillis() - start));
+            } catch (Exception e) {
+
+            }
+        }
     }
 
     // should be in writeLock

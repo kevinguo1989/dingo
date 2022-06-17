@@ -24,7 +24,7 @@ import io.dingodb.common.util.Files;
 import io.dingodb.common.util.Optional;
 import io.dingodb.common.util.PreParameters;
 import io.dingodb.raft.core.DefaultJRaftServiceFactory;
-import io.dingodb.raft.kv.storage.ByteArrayEntry;
+import io.dingodb.raft.tmp.ByteArrayEntry;
 import io.dingodb.raft.kv.storage.RawKVStore;
 import io.dingodb.raft.kv.storage.RocksRawKVStore;
 import io.dingodb.raft.kv.storage.SeekableIterator;

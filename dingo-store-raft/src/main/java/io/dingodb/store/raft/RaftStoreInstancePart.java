@@ -21,7 +21,7 @@ import io.dingodb.common.Location;
 import io.dingodb.common.config.DingoConfiguration;
 import io.dingodb.common.store.KeyValue;
 import io.dingodb.common.store.Part;
-import io.dingodb.raft.kv.storage.ByteArrayEntry;
+import io.dingodb.raft.tmp.ByteArrayEntry;
 import io.dingodb.raft.kv.storage.RaftRawKVStore;
 import io.dingodb.raft.kv.storage.RawKVStore;
 import io.dingodb.raft.kv.storage.SeekableIterator;

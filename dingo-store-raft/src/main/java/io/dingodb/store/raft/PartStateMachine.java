@@ -27,9 +27,9 @@ import io.dingodb.raft.Node;
 import io.dingodb.raft.Status;
 import io.dingodb.raft.entity.LocalFileMetaOutter;
 import io.dingodb.raft.entity.PeerId;
-import io.dingodb.raft.kv.storage.ByteArrayEntry;
+import io.dingodb.raft.tmp.ByteArrayEntry;
 import io.dingodb.raft.kv.storage.DefaultRaftRawKVStoreStateMachine;
-import io.dingodb.raft.kv.storage.RaftRawKVOperation;
+import io.dingodb.raft.tmp.RaftRawKVOperation;
 import io.dingodb.raft.kv.storage.RaftRawKVStore;
 import io.dingodb.raft.kv.storage.SeekableIterator;
 import io.dingodb.raft.storage.snapshot.SnapshotReader;
@@ -55,8 +55,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static io.dingodb.raft.kv.Constants.SNAPSHOT_ZIP;
-import static io.dingodb.raft.kv.storage.RaftRawKVOperation.Op.SNAPSHOT_LOAD;
-import static io.dingodb.raft.kv.storage.RaftRawKVOperation.Op.SNAPSHOT_SAVE;
+import static io.dingodb.raft.tmp.RaftRawKVOperation.Op.SNAPSHOT_LOAD;
+import static io.dingodb.raft.tmp.RaftRawKVOperation.Op.SNAPSHOT_SAVE;
 import static io.dingodb.server.protocol.CommonIdConstant.ID_TYPE;
 import static io.dingodb.server.protocol.CommonIdConstant.STATS_IDENTIFIER;
 

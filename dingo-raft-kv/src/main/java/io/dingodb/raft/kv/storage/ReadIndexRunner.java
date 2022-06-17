@@ -20,6 +20,7 @@ import io.dingodb.common.concurrent.Executors;
 import io.dingodb.common.util.ByteArrayUtils;
 import io.dingodb.raft.Node;
 import io.dingodb.raft.Status;
+import io.dingodb.raft.tmp.RaftRawKVOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

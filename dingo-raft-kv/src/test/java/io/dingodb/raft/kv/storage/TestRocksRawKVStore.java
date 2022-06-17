@@ -18,6 +18,7 @@ package io.dingodb.raft.kv.storage;
 
 import io.dingodb.common.util.Files;
 import io.dingodb.raft.kv.config.RocksConfigration;
+import io.dingodb.raft.tmp.ByteArrayEntry;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;

@@ -28,6 +28,8 @@ import io.dingodb.raft.option.RaftLogStoreOptions;
 import io.dingodb.raft.storage.LogStorage;
 import io.dingodb.raft.storage.impl.RocksDBLogStorage;
 import io.dingodb.raft.storage.impl.RocksDBLogStore;
+import io.dingodb.raft.tmp.ByteArrayEntry;
+import io.dingodb.raft.tmp.RaftRawKVOperation;
 import io.dingodb.raft.util.Endpoint;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;

@@ -26,6 +26,8 @@ import io.dingodb.raft.conf.Configuration;
 import io.dingodb.raft.entity.PeerId;
 import io.dingodb.raft.option.NodeOptions;
 import io.dingodb.raft.storage.LogStorage;
+import io.dingodb.raft.tmp.ByteArrayEntry;
+import io.dingodb.raft.tmp.RaftRawKVOperation;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 

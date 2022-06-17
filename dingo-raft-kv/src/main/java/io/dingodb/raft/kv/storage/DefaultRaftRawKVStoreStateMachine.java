@@ -31,6 +31,8 @@ import io.dingodb.raft.error.RaftException;
 import io.dingodb.raft.rpc.ReportTarget;
 import io.dingodb.raft.storage.snapshot.SnapshotReader;
 import io.dingodb.raft.storage.snapshot.SnapshotWriter;
+import io.dingodb.raft.tmp.RaftClosure;
+import io.dingodb.raft.tmp.RaftRawKVOperation;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -39,8 +41,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.Checksum;
 
 import static io.dingodb.raft.kv.Constants.SNAPSHOT_ZIP;
-import static io.dingodb.raft.kv.storage.RaftRawKVOperation.Op.SNAPSHOT_LOAD;
-import static io.dingodb.raft.kv.storage.RaftRawKVOperation.Op.SNAPSHOT_SAVE;
+import static io.dingodb.raft.tmp.RaftRawKVOperation.Op.SNAPSHOT_LOAD;
+import static io.dingodb.raft.tmp.RaftRawKVOperation.Op.SNAPSHOT_SAVE;
 
 @Slf4j
 public class DefaultRaftRawKVStoreStateMachine implements StateMachine {
