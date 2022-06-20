@@ -1271,23 +1271,26 @@ public class NodeImpl implements Node, RaftServerService {
 
         this.writeLock.unlock();
 
-        for (int j = 0; j < 1000; j++) {
-            try {
-                long start = System.currentTimeMillis();
-                for (Integer i = 0; i < 10; i++) {
-                    byte b = i.byteValue();
-                    CompletableFuture future = RaftRawKVOperation.put(new byte[]{b}, new byte[]{b}).applyOnNode(this);
-                    future.get();
-                }
-                System.out.println("single put 10 times: " + (System.currentTimeMillis() - start));
-            } catch (Exception e) {
+//        for (int j = 0; j < 1000; j++) {
+//            try {
+//                long start = System.currentTimeMillis();
+//                for (Integer i = 0; i < 10; i++) {
+//                    byte b = i.byteValue();
+//                    CompletableFuture future = RaftRawKVOperation.put(new byte[]{b}, new byte[]{b}).applyOnNode(this);
+//                    future.get();
+//                }
+//                System.out.println("single put 10 times: " + (System.currentTimeMillis() - start));
+//            } catch (Exception e) {
+//
+//            }
+//        }
 
-            }
-        }
+//        for (int i = 0; i < 20; i++) {
+//            new Thread(new MulitInsert(this)).start();
+//        }
 
-        for (int i = 0; i < 20; i++) {
-            new Thread(new MulitInsert(this)).start();
-        }
+        new Thread(new MulitInsert(this)).start();
+
     }
 
     // should be in writeLock
