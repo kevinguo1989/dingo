@@ -229,28 +229,28 @@ public class PartStateMachine extends DefaultRaftRawKVStoreStateMachine {
     //todo refactor send stats ?
     private void sendStats(Timeout timeout) throws Exception {
         try {
-            SeekableIterator<byte[], ByteArrayEntry> iterator = store.scan(part.getStart(), part.getEnd()).join();
+            //SeekableIterator<byte[], ByteArrayEntry> iterator = store.scan(part.getStart(), part.getEnd()).join();
             List<ApproximateStats> approximateStats = new ArrayList<>();
-            long count = 0;
-            long size = 0;
-            byte[] startKey = null;
-            byte[] endKey = null;
-            while (iterator.hasNext()) {
-                count++;
-                ByteArrayEntry entry = iterator.next();
-                size += entry.getKey().length;
-                size += entry.getValue().length;
-                if (startKey == null) {
-                    startKey = entry.getKey();
-                }
-                endKey = entry.getKey();
-                if (count >= approximateCount) {
-                    approximateStats.add(new ApproximateStats(startKey, entry.getKey(), count, size));
-                    count = 0;
-                    size = 0;
-                    startKey = null;
-                }
-            }
+            long count = 1;
+            long size = 1;
+            byte[] startKey = new byte[] {1};
+            byte[] endKey = new byte[] {2};
+//            while (iterator.hasNext()) {
+//                count++;
+//                ByteArrayEntry entry = iterator.next();
+//                size += entry.getKey().length;
+//                size += entry.getValue().length;
+//                if (startKey == null) {
+//                    startKey = entry.getKey();
+//                }
+//                endKey = entry.getKey();
+//                if (count >= approximateCount) {
+//                    approximateStats.add(new ApproximateStats(startKey, entry.getKey(), count, size));
+//                    count = 0;
+//                    size = 0;
+//                    startKey = null;
+//                }
+//            }
             if (count > 0) {
                 approximateStats.add(new ApproximateStats(startKey, endKey, count, size));
             }

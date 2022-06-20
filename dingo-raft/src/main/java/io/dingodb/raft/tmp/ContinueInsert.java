@@ -45,7 +45,7 @@ public class ContinueInsert implements Runnable {
                 }
                 long duration = System.currentTimeMillis() - start;
                 totalTime += duration;
-                log.info("mulit put 100 No {} times: {}, {}", j, duration, totalTime);
+                log.info("mulit put 100 Group [{}] No {} times: {}, {}", node.getGroupId(), j, duration, totalTime);
             } catch (Exception e) {
 
             }
