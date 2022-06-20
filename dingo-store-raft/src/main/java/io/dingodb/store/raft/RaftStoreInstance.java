@@ -110,6 +110,7 @@ public class RaftStoreInstance implements StoreInstance {
 
     @Override
     public void assignPart(Part part) {
+        log.info("PartInfo: {}", part);
         part.setStart(PreParameters.cleanNull(part.getStart(), EMPTY_BYTES));
         try {
             Path partPath = Optional.ofNullable(StoreConfiguration.raft().getRaftPath())
