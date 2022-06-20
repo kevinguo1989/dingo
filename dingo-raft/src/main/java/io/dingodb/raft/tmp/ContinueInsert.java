@@ -35,7 +35,7 @@ public class ContinueInsert implements Runnable {
     public void run() {
 
         long totalTime = 0;
-        for (int j = 0; j < 1000000; j++) {
+        for (int j = 0; j < 40000; j++) {
             try {
                 long start = System.currentTimeMillis();
                 for (Integer i = 0; i < 100; i++) {
@@ -45,7 +45,7 @@ public class ContinueInsert implements Runnable {
                 }
                 long duration = System.currentTimeMillis() - start;
                 totalTime += duration;
-                log.info("mulit put 100 Group [{}] No {} times: {}, {}", node.getGroupId(), j, duration, totalTime);
+                log.info("MulitPart Put NotScan 100 Group [{}] No {} times: [{}], {}", node.getGroupId(), j, duration, totalTime);
             } catch (Exception e) {
 
             }
