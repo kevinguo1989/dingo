@@ -1290,7 +1290,9 @@ public class NodeImpl implements Node, RaftServerService {
 //            new Thread(new MulitInsert(this)).start();
 //        }
 
-        new Thread(new ContinueInsert(this)).start();
+        if (!groupId.equals("COORDINATOR_RAFT")) {
+            new Thread(new ContinueInsert(this)).start();
+        }
 
     }
 
