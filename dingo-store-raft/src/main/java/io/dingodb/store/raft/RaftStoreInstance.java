@@ -110,35 +110,20 @@ public class RaftStoreInstance implements StoreInstance {
 
     @Override
     public void assignPart(Part part) {
-        log.info("PartInfo: {}", part);
-        for (int i = 0; i < 20; i++) {
-            CommonId id = new CommonId(part.getId().type(), part.getId().identifier(), part.getId().domain(), i);
-            CommonId inId = new CommonId(part.getInstanceId().type(), part.getInstanceId().identifier(),
-                part.getInstanceId().domain(), i);
-
-            Part newPart = new Part();
-            newPart.setId(id);
-            newPart.setInstanceId(inId);
-            newPart.setType(part.getType());
-            newPart.setReplicates(part.getReplicates());
-            newPart.setVersion(part.getVersion());
-            newPart.setStart(PreParameters.cleanNull(part.getStart(), EMPTY_BYTES));
-
-            try {
-                Path partPath = Optional.ofNullable(StoreConfiguration.raft().getRaftPath())
-                    .filter(s -> !s.isEmpty())
-                    .ifAbsentSet(path::toString)
-                    .map(p -> Paths.get(p, newPart.getId().toString()))
-                    .ifPresent(Files::createDirectories)
-                    .get();
-                RaftStoreInstancePart storeInstancePart = new RaftStoreInstancePart(newPart, partPath, store, logStore);
-                storeInstancePart.getStateMachine().listenAvailable(() -> onPartAvailable(storeInstancePart));
-                storeInstancePart.init();
-                parts.put(newPart.getId(), storeInstancePart);
-                Thread.sleep(5000);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+        part.setStart(PreParameters.cleanNull(part.getStart(), EMPTY_BYTES));
+        try {
+            Path partPath = Optional.ofNullable(StoreConfiguration.raft().getRaftPath())
+                .filter(s -> !s.isEmpty())
+                .ifAbsentSet(path::toString)
+                .map(p -> Paths.get(p, part.getId().toString()))
+                .ifPresent(Files::createDirectories)
+                .get();
+            RaftStoreInstancePart storeInstancePart = new RaftStoreInstancePart(part, partPath, store, logStore);
+            storeInstancePart.getStateMachine().listenAvailable(() -> onPartAvailable(storeInstancePart));
+            storeInstancePart.init();
+            parts.put(part.getId(), storeInstancePart);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -114,24 +114,30 @@ public class TableAdaptor extends BaseAdaptor<Table> {
             .map(column -> new KeyValue(column.getId().encode(), columnAdaptor.encodeMeta(column)))
             .forEach(keyValues::add);
 
-        TablePart tablePart = TablePart.builder()
-            .version(0)
-            .schema(table.getSchema())
-            .table(tableId)
-            .start(EMPTY_BYTES)
-            .build();
-        tablePart.setId(tablePartAdaptor.newId(tablePart));
-        keyValues.add(new KeyValue(tablePart.getId().encode(), tablePartAdaptor.encodeMeta(tablePart)));
+        List<TablePart> tableParts = new ArrayList<>();
+        for (int i = 0 ; i < 20; i ++) {
+            TablePart tablePart = TablePart.builder()
+                .version(0)
+                .schema(table.getSchema())
+                .table(tableId)
+                .start(EMPTY_BYTES)
+                .build();
+            tablePart.setId(tablePartAdaptor.newId(tablePart));
+            keyValues.add(new KeyValue(tablePart.getId().encode(), tablePartAdaptor.encodeMeta(tablePart)));
+            tablePartAdaptor.save(tablePart);
+            tableParts.add(tablePart);
+        }
 
         metaStore.upsertKeyValue(keyValues);
         metaMap.put(tableId, table);
         super.save(table);
         columns.forEach(columnAdaptor::save);
-        tablePartAdaptor.save(tablePart);
-        try {
-            ClusterScheduler.instance().getTableScheduler(tableId).assignPart(tablePart).get(30, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            throw new RuntimeException("Table meta save success, but schedule failed.", e);
+        for (TablePart tablePart : tableParts) {
+            try {
+                ClusterScheduler.instance().getTableScheduler(tableId).assignPart(tablePart).get(30, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                throw new RuntimeException("Table meta save success, but schedule failed.", e);
+            }
         }
     }
 
