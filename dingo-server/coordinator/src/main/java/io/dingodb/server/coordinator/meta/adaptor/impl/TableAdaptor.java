@@ -115,7 +115,7 @@ public class TableAdaptor extends BaseAdaptor<Table> {
             .forEach(keyValues::add);
 
         List<TablePart> tableParts = new ArrayList<>();
-        for (int i = 0 ; i < 20; i ++) {
+        for (int i = 0 ; i < 60; i ++) {
             TablePart tablePart = TablePart.builder()
                 .version(0)
                 .schema(table.getSchema())
