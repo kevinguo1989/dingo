@@ -518,6 +518,19 @@ public class RocksDBLogStorage implements LogStorage, Describer {
                 this.dbStore.getReadLock().unlock();
                 LOG.info("Truncated prefix logs from log index {} to {}, cost {} ms.",
                     startIndex, firstIndexKept, Utils.monotonicMs() - startMs);
+                new Throwable().printStackTrace();
+                StackTraceElement[] stackElements = Thread.currentThread().getStackTrace();
+                StringBuilder sb = new StringBuilder();
+                if (null != stackElements) {
+                    for (int i = 0; i < stackElements.length; i++) {
+                        sb.append(stackElements[i].getClassName());
+                        sb.append(".").append(stackElements[i].getMethodName());
+                        sb.append("(").append(stackElements[i].getFileName()).append(":");
+                        sb.append(stackElements[i].getLineNumber()+")").append("\n");
+                    }
+                };
+                LOG.info("{}", sb.toString());
+
             }
         });
     }

@@ -248,7 +248,7 @@ public class SnapshotExecutorImpl implements SnapshotExecutor {
             Utils.closeQuietly(reader);
             return false;
         }
-        LOG.info("Loading snapshot, meta={}.", this.loadingSnapshotMeta);
+        LOG.info("Loading , meta={}.", this.loadingSnapshotMeta);
         this.loadingSnapshot = true;
         this.runningJobs.incrementAndGet();
         final FirstSnapshotLoadDone done = new FirstSnapshotLoadDone(reader);
