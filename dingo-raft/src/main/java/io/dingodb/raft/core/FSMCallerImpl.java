@@ -431,7 +431,8 @@ public class FSMCallerImpl implements FSMCaller {
             }
         }
         try {
-            LOG.info("FSMCallerImpl EndOfBatch, maxCommittedIndex : {}, {}", endOfBatch, maxCommittedIndex);
+            LOG.info("FSMCallerImpl EndOfBatch, maxCommittedIndex : {}, {}, {}",
+                endOfBatch, maxCommittedIndex, this.currTask);
             if (endOfBatch && maxCommittedIndex >= 0) {
                 this.currTask = TaskType.COMMITTED;
                 doCommitted(maxCommittedIndex);
@@ -573,6 +574,7 @@ public class FSMCallerImpl implements FSMCaller {
         final IteratorWrapper iter = new IteratorWrapper(iterImpl);
         final long startApplyMs = Utils.monotonicMs();
         final long startIndex = iter.getIndex();
+        LOG.info("doApplyTasks startIndex : {}", startIndex);
         try {
             this.fsm.onApply(iter);
         } finally {
