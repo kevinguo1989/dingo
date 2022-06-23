@@ -670,6 +670,7 @@ public class LogManagerImpl implements LogManager {
 
     @Override
     public void clearBufferedLogs() {
+        LOG.info("ClearBufferedLogs");
         boolean isUnLock = true;
         this.writeLock.lock();
         try {

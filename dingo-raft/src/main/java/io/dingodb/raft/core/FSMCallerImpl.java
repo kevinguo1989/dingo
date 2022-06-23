@@ -431,6 +431,7 @@ public class FSMCallerImpl implements FSMCaller {
             }
         }
         try {
+            LOG.info("FSMCallerImpl EndOfBatch, maxCommittedIndex : {}, {}", endOfBatch, maxCommittedIndex);
             if (endOfBatch && maxCommittedIndex >= 0) {
                 this.currTask = TaskType.COMMITTED;
                 doCommitted(maxCommittedIndex);
@@ -465,6 +466,7 @@ public class FSMCallerImpl implements FSMCaller {
             return;
         }
         final long lastAppliedIndex = this.lastAppliedIndex.get();
+        LOG.info("FSMCaller do commit : {}, {}", lastAppliedIndex, committedIndex);
         // We can tolerate the disorder of committed_index
         if (lastAppliedIndex >= committedIndex) {
             return;
@@ -587,6 +589,7 @@ public class FSMCallerImpl implements FSMCaller {
     private void doSnapshotSave(final SaveSnapshotClosure done, ReportTarget reportTarget) {
         Requires.requireNonNull(done, "SaveSnapshotClosure is null");
         final long lastAppliedIndex = this.lastAppliedIndex.get();
+        LOG.info("LastAppliedIndex fsmcaller doSnapshotSave: {}", lastAppliedIndex);
         final RaftOutter.SnapshotMeta.Builder metaBuilder = RaftOutter.SnapshotMeta.newBuilder() //
             .setLastIncludedIndex(lastAppliedIndex) //
             .setLastIncludedTerm(this.lastAppliedTerm);

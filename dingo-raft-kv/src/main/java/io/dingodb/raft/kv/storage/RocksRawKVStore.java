@@ -270,7 +270,10 @@ public class RocksRawKVStore implements RawKVStore {
                     iterator.next();
                     count++;
                 }
-                if (count > 0) {
+                log.info("Snapshot count : {}", count);
+                if (count == 0) {
+                    sstFileWriter.close();
+                } else if (count > 0) {
                     if (log.isDebugEnabled()) {
                         log.warn("Save snapshot file {}, but count is 0, skip finish.", sstPath);
                     }
