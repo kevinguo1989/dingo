@@ -265,7 +265,7 @@ public class StoreOperationUtils {
         return;
     }
 
-    private synchronized ExecutorApi getExecutor(final String tableName, byte[] keyInBytes) {
+    public synchronized ExecutorApi getExecutor(final String tableName, byte[] keyInBytes) {
         RouteTable executionTopology = getAndRefreshRouteTable(tableName, false);
         if (executionTopology == null) {
             log.warn("Cannot find execution topology for table:{}", tableName);

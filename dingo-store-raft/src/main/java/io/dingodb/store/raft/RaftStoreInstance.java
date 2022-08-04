@@ -17,8 +17,11 @@
 package io.dingodb.store.raft;
 
 import io.dingodb.common.CommonId;
+import io.dingodb.common.codec.KeyValueCodec;
 import io.dingodb.common.store.KeyValue;
 import io.dingodb.common.store.Part;
+import io.dingodb.common.table.DingoKeyValueCodec;
+import io.dingodb.common.table.TableDefinition;
 import io.dingodb.common.util.ByteArrayUtils;
 import io.dingodb.common.util.Files;
 import io.dingodb.common.util.Optional;
@@ -31,12 +34,19 @@ import io.dingodb.raft.kv.storage.SeekableIterator;
 import io.dingodb.raft.option.RaftLogStoreOptions;
 import io.dingodb.raft.storage.LogStore;
 import io.dingodb.raft.storage.impl.RocksDBLogStore;
+import io.dingodb.serial.schema.DingoSchema;
+import io.dingodb.serial.util.Utils;
 import io.dingodb.server.protocol.metric.MonitorMetric;
 import io.dingodb.store.api.StoreInstance;
 import io.dingodb.store.raft.config.StoreConfiguration;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.luaj.vm2.Globals;
+import org.luaj.vm2.LuaTable;
+import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.lib.jse.JsePlatform;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -68,6 +78,14 @@ public class RaftStoreInstance implements StoreInstance {
     private final Map<byte[], RaftStoreInstancePart> waitParts;
     private final PartReadWriteCollector collector;
 
+    //private ThreadLocal<TableDefinition> tableDefinition = new ThreadLocal<>();
+    //private ThreadLocal<KeyValueCodec> keyValueCodec = new ThreadLocal<>();
+
+    //private ThreadLocal<Globals> globals = new ThreadLocal<>();
+
+    private TableDefinition tableDefinition;
+    private KeyValueCodec keyValueCodec;
+    Globals globals = JsePlatform.standardGlobals();
     public RaftStoreInstance(Path path, CommonId id) {
         try {
             this.id = id;
@@ -115,6 +133,127 @@ public class RaftStoreInstance implements StoreInstance {
     @Override
     public void openReportStats(CommonId part) {
         parts.get(part).getStateMachine().collectStats(true);
+    }
+
+    @Override
+    public void initTableDefinition(TableDefinition tableDefinition) {
+        this.tableDefinition = tableDefinition;
+        this.keyValueCodec = new DingoKeyValueCodec(tableDefinition.getDingoType(), tableDefinition.getKeyMapping());
+    }
+
+    @Override
+    public void addLuaFunction(String luaFunction) {
+        this.globals.load(luaFunction).call();
+    }
+
+    @Override
+    public KeyValue getKeyValueByUDF(String functionName, byte[] primaryKey) {
+        Object[] record = null;
+        try {
+            KeyValue keyValue = getKeyValueByPrimaryKey(primaryKey);
+            record = keyValueCodec.decode(keyValue);
+        } catch (IOException e) {
+            return null;
+        }
+        LuaTable table = getLuaTable(this.tableDefinition.getDingoSchema(), record);
+        LuaValue udf = globals.get(LuaValue.valueOf(functionName));
+        LuaValue result = udf.call(table);
+        Object[] newRecord = getObject(this.tableDefinition.getDingoSchema(), result);
+        try {
+            return keyValueCodec.encode(newRecord);
+        } catch (IOException e) {
+
+        }
+        return null;
+    }
+
+    @Override
+    public boolean updateKeyValueByUDF(String functionName, byte[] primaryKey) {
+        Object[] record = null;
+        try {
+            KeyValue keyValue = getKeyValueByPrimaryKey(primaryKey);
+            record = keyValueCodec.decode(keyValue);
+        } catch (IOException e) {
+            return false;
+        }
+        LuaTable table = getLuaTable(this.tableDefinition.getDingoSchema(), record);
+        LuaValue udf = globals.get(LuaValue.valueOf(functionName));
+        LuaValue result = udf.call(table);
+        Object[] newRecord = getObject(this.tableDefinition.getDingoSchema(), result);
+        try {
+            return upsertKeyValue(keyValueCodec.encode(newRecord));
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    private LuaTable getLuaTable(List<DingoSchema> schemaList, Object[] record) {
+        LuaTable table = new LuaTable();
+        for (DingoSchema schema : schemaList) {
+            switch (schema.getType()) {
+                case BOOLEAN:
+                    table.set(schema.getIndex(), LuaValue.valueOf((boolean) record[schema.getIndex()]));
+                    break;
+                case SHORT:
+                    table.set(schema.getIndex(), LuaValue.valueOf((short) record[schema.getIndex()]));
+                    break;
+                case INTEGER:
+                    table.set(schema.getIndex(), LuaValue.valueOf((int) record[schema.getIndex()]));
+                    break;
+                case FLOAT:
+                    table.set(schema.getIndex(), LuaValue.valueOf((float) record[schema.getIndex()]));
+                    break;
+                case LONG:
+                    table.set(schema.getIndex(), LuaValue.valueOf((long) record[schema.getIndex()]));
+                    break;
+                case DOUBLE:
+                    table.set(schema.getIndex(), LuaValue.valueOf((double) record[schema.getIndex()]));
+                    break;
+                case STRING:
+                    table.set(schema.getIndex(), LuaValue.valueOf((String) record[schema.getIndex()]));
+                    break;
+                case BYTES:
+                    table.set(schema.getIndex(), LuaValue.valueOf((byte[]) record[schema.getIndex()]));
+                    break;
+                default:
+            }
+        }
+        return table;
+    }
+
+    private Object[] getObject(List<DingoSchema> schemaList, LuaValue result) {
+        Object[] record = new Object[schemaList.size()];
+        for (DingoSchema schema : schemaList) {
+            switch (schema.getType()) {
+                case BOOLEAN:
+                    record[schema.getIndex()] = result.get(schema.getIndex()).toboolean();
+                    break;
+                case SHORT:
+                    record[schema.getIndex()] = result.get(schema.getIndex()).toshort();
+                    break;
+                case INTEGER:
+                    record[schema.getIndex()] = result.get(schema.getIndex()).toint();
+                    break;
+                case FLOAT:
+                    record[schema.getIndex()] = result.get(schema.getIndex()).tofloat();
+                    break;
+                case LONG:
+                    record[schema.getIndex()] = result.get(schema.getIndex()).tolong();
+                    break;
+                case DOUBLE:
+                    record[schema.getIndex()] = result.get(schema.getIndex()).todouble();
+                    break;
+                case STRING:
+                    record[schema.getIndex()] = result.get(schema.getIndex()).toString();
+                    break;
+                case BYTES:
+                    //record[schema.getIndex()] = result.get(schema.getIndex()).tobyte();
+                    //TODO byte[]
+                    break;
+                default:
+            }
+        }
+        return record;
     }
 
     @Override

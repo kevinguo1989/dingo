@@ -18,6 +18,7 @@ package io.dingodb.server.api;
 
 import io.dingodb.common.CommonId;
 import io.dingodb.common.store.KeyValue;
+import io.dingodb.common.table.TableDefinition;
 import io.dingodb.net.api.annotation.ApiDeclaration;
 
 import java.util.List;
@@ -52,4 +53,16 @@ public interface ExecutorApi {
 
     @ApiDeclaration
     public byte[] operator(CommonId tableId, byte[] key, byte[] computes);
+
+    @ApiDeclaration
+    public void initTableDefinition(CommonId tableId, TableDefinition tableDefinition);
+
+    @ApiDeclaration
+    public void addLuaFunction(CommonId tableId, String luajFunction);
+
+    @ApiDeclaration
+    public KeyValue getKeyValueByUDF(CommonId tableId, String functionName, byte[] primaryKey);
+
+    @ApiDeclaration
+    public boolean updateKeyValueByUDF(CommonId tableId, String functionName, byte[] primaryKey);
 }

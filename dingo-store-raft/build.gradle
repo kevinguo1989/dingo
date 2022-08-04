@@ -32,6 +32,7 @@ dependencies {
     implementation project(":dingo-raft-kv")
     implementation project(":dingo-server:dingo-server-client")
     implementation project(":dingo-server:dingo-server-protocol")
+    implementation group: 'org.luaj', name: 'luaj-jse', version: 'luaj'.v()
 }
 
 task fatJar(type: Jar) {

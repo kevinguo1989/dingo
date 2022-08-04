@@ -1,0 +1,15 @@
+cluster:
+    name: dingo
+exchange:
+    host: 127.0.0.1
+    port: 19191
+server:
+    coordinatorExchangeSvrList: 127.0.0.1:19181,127.0.0.1:19182,127.0.0.1:19183
+    dataPath: /tmp/dingo/executor1
+    monitorPort: 9097
+store:
+    dbPath: /tmp/dingo/executor1/db
+    raft:
+        raftPath: /tmp/dingo/executor1/raft
+        port: 9191
+    collectStatsInterval: 5

@@ -17,9 +17,11 @@
 package io.dingodb.store.api;
 
 import io.dingodb.common.CommonId;
+import io.dingodb.common.filter.DingoFilter;
 import io.dingodb.common.store.KeyValue;
 import io.dingodb.common.store.Part;
 import io.dingodb.common.store.Row;
+import io.dingodb.common.table.TableDefinition;
 
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +37,26 @@ public interface StoreInstance {
     // todo A temporary solution need refactor report stats
     @Deprecated
     default void closeReportStats(CommonId part) {
+        throw new UnsupportedOperationException();
+    }
+
+    default void initTableDefinition(TableDefinition tableDefinition) {
+        throw new UnsupportedOperationException();
+    }
+
+    default void addLuaFunction(String luaFunction) {
+        throw new UnsupportedOperationException();
+    }
+
+    default KeyValue getKeyValueByUDF(String functionName, byte[] primaryKey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default boolean updateKeyValueByUDF(String functionName, byte[] primaryKey) {
+        throw new UnsupportedOperationException();
+    }
+
+    default boolean filter(DingoFilter filter, byte[] primaryKey) {
         throw new UnsupportedOperationException();
     }
 

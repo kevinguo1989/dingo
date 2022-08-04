@@ -1,0 +1,11 @@
+CREATE TABLE persons
+(
+id int NOT NULL,
+name varchar(255) NOT NULL,
+address varchar(255),
+age int,
+test double,
+PRIMARY KEY (id)
+)
+
+insert into persons values(1, 'a1', 'd1', 25, 10);

@@ -18,6 +18,7 @@ package io.dingodb.server.executor.api;
 
 import io.dingodb.common.CommonId;
 import io.dingodb.common.store.KeyValue;
+import io.dingodb.common.table.TableDefinition;
 import io.dingodb.net.NetService;
 import io.dingodb.store.api.StoreService;
 import lombok.extern.slf4j.Slf4j;
@@ -99,5 +100,25 @@ public class ExecutorApi implements io.dingodb.server.api.ExecutorApi {
     @Override
     public byte[] operator(CommonId tableId, byte[] key, byte[] computes) {
         return new byte[0];
+    }
+
+    @Override
+    public void initTableDefinition(CommonId tableId, TableDefinition tableDefinition) {
+        storeService.getInstance(tableId).initTableDefinition(tableDefinition);
+    }
+
+    @Override
+    public void addLuaFunction(CommonId tableId, String luajFunction) {
+        storeService.getInstance(tableId).addLuaFunction(luajFunction);
+    }
+
+    @Override
+    public KeyValue getKeyValueByUDF(CommonId tableId, String functionName, byte[] primaryKey) {
+        return storeService.getInstance(tableId).getKeyValueByUDF(functionName, primaryKey);
+    }
+
+    @Override
+    public boolean updateKeyValueByUDF(CommonId tableId, String functionName, byte[] primaryKey) {
+        return storeService.getInstance(tableId).updateKeyValueByUDF(functionName, primaryKey);
     }
 }
