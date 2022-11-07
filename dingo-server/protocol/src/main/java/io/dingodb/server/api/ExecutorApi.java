@@ -73,6 +73,16 @@ public interface ExecutorApi {
     }
 
     @ApiDeclaration
+    default boolean insertUnfinishedKey(CommonId tableId, byte[] key) {
+        return false;
+    }
+
+    @ApiDeclaration
+    default boolean insertFinishedKey(CommonId tableId, byte[] key) {
+        return false;
+    }
+
+    @ApiDeclaration
     KeyValue udfGet(CommonId tableId, byte[] primaryKey, String udfName, String functionName, int version);
 
     @ApiDeclaration

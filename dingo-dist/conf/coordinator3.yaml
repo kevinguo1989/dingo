@@ -1,0 +1,12 @@
+cluster:
+    name: dingo
+exchange:
+    host: 127.0.0.1
+    port: 19183
+server:
+    dataPath: /tmp/dingo/coordinator3
+    raft:
+        group: COORDINATOR_RAFT
+        port: 9183
+        initRaftSvrList: 127.0.0.1:9181,127.0.0.1:9182,127.0.0.1:9183
+    monitorPort: 9089

@@ -23,6 +23,7 @@ dependencies {
     compile project(":dingo-server:dingo-server-protocol")
     compile project(":dingo-net-api")
     compile project(":dingo-server:dingo-server-client")
+    compile project(":dingo-server:dingo-server-executor")
     testImplementation group: 'org.mockito', name: 'mockito-core', version: 'mockito'.v()
 }
 

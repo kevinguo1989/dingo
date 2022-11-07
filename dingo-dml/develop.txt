@@ -1,0 +1,6 @@
+1. TableCoordinatorServerApi存储/读取TableDefinition
+2. TableCoordinator启动/通知coordinator启动新的raftgroup 并且与index绑定
+3. TableCoordinator删除/通知coordinator删除raftgroup
+4. Executor获取全部完成主键/未完成主键 分页
+5. TableCoordinator接受Executor心跳信息，维护index心跳时间
+6. Coordinator接受TableCoordinator心跳信息，维护table心跳时间

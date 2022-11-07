@@ -40,9 +40,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @JsonPropertyOrder({"name", "columns"})
@@ -58,6 +60,17 @@ public class TableDefinition {
     @Setter
     private List<ColumnDefinition> columns;
 
+    private Map<String, ColumnDefinition> columnsMap = new ConcurrentHashMap<>();
+
+    @JsonProperty("indexes")
+    @Getter
+    @Setter
+    private Map<String, Index> indexes = new ConcurrentHashMap<>();
+
+    @JsonProperty("version")
+    @Getter
+    private int version;
+
     private String partType;
 
     private Map<String, Object> attrMap;
@@ -65,8 +78,14 @@ public class TableDefinition {
     private DingoTablePart dingoTablePart;
 
     @JsonCreator
-    public TableDefinition(@JsonProperty("name") String name) {
+    public TableDefinition(@JsonProperty("name") String name, @JsonProperty("columns") List<ColumnDefinition> columns) {
         this.name = name;
+        if (columns != null) {
+            this.columns = columns;
+            for (ColumnDefinition cd : columns) {
+                columnsMap.put(cd.getName(), cd);
+            }
+        }
     }
 
     public static TableDefinition fromJson(String json) throws IOException {
@@ -284,5 +303,99 @@ public class TableDefinition {
         } catch (JsonProcessingException e) {
             throw new AssertionError(e);
         }
+    }
+
+    public void addIndex(Index newIndex) {
+        for (String columnName : newIndex.getColumns()) {
+            if (getColumn(columnName) == null) {
+                throw new IllegalArgumentException("Column " + columnName + " not found in table " + name);
+            }
+        }
+        indexes.put(newIndex.getName(), newIndex);
+    }
+
+    public void setIndexNormal(String indexName) {
+        setIndexStatus(indexName, IndexStatus.NORMAL);
+    }
+
+    public void setIndexBusy(String indexName) {
+        setIndexStatus(indexName, IndexStatus.BUSY);
+    }
+
+    public void setIndexDeleted(String indexName) {
+        setIndexStatus(indexName, IndexStatus.DELETED);
+    }
+
+    private void setIndexStatus(String indexName, IndexStatus status) {
+        Index index = indexes.get(indexName);
+        if (index == null) {
+            throw new IllegalArgumentException("Index " + indexName + " not found in table " + name);
+        }
+        index.setStatus(status);
+    }
+
+    public synchronized void increaseVersion() {
+        version++;
+    }
+
+
+    public void deleteIndex(String indexName) {
+        if (indexes.remove(indexName) == null) {
+            throw new IllegalArgumentException("Index " + indexName + " not found in table " + name);
+        }
+    }
+
+    public int getNonDeleteIndexesCount() {
+        int count = 0;
+        for (Map.Entry<String, Index> entry : indexes.entrySet()) {
+            if (entry.getValue().getStatus() != IndexStatus.DELETED) {
+                count ++;
+            }
+        }
+        return count;
+    }
+
+    public List<String> getBusyIndexes() {
+        List<String> busyIndex = new ArrayList<>();
+        for (Map.Entry<String, Index> entry : indexes.entrySet()) {
+            if (entry.getValue().getStatus() == IndexStatus.BUSY) {
+                busyIndex.add(entry.getKey());
+            }
+        }
+        return busyIndex;
+    }
+
+    public List<String> getDeletedIndexes() {
+        List<String> deletedIndex = new ArrayList<>();
+        for (Map.Entry<String, Index> entry : indexes.entrySet()) {
+            if (entry.getValue().getStatus() == IndexStatus.DELETED) {
+                deletedIndex.add(entry.getKey());
+            }
+        }
+        return deletedIndex;
+    }
+
+    public Index getIndex(String indexName) {
+        if (!indexes.containsKey(indexName)) {
+            throw new IllegalArgumentException("Index " + indexName + " not found in table " + name);
+        }
+        return indexes.get(indexName);
+    }
+
+    public TupleMapping getIndexMapping(String indexName) {
+        Index index = getIndex(indexName);
+        List<Integer> indices = new LinkedList<>();
+        for (String columnName : index.getColumns()) {
+            indices.add(getColumnIndex(columnName));
+        }
+        return TupleMapping.of(indices);
+    }
+
+    public Map<String, TupleMapping> getIndexesMapping() {
+        Map<String, TupleMapping> indexesMapping = new HashMap<>();
+        for (Map.Entry<String, Index> entry : indexes.entrySet()) {
+            indexesMapping.put(entry.getKey(), getIndexMapping(entry.getKey()));
+        }
+        return indexesMapping;
     }
 }

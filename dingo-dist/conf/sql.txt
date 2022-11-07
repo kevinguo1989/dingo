@@ -1,0 +1,59 @@
+CREATE TABLE persons
+(
+id int NOT NULL,
+name varchar(255) NOT NULL,
+address varchar(255),
+age int,
+test double,
+PRIMARY KEY (id)
+);
+
+insert into persons values(1, 'a1', 'd1', 25, 10);
+insert into persons values(2, 'a2', 'd2', 25, 10);
+
+CREATE TABLE persons1
+(
+id int NOT NULL,
+name varchar(255) NOT NULL,
+address varchar(255),
+age int,
+test double,
+score int multiset,
+PRIMARY KEY (id)
+);
+
+insert into persons1 values(2, 'a2', 'd2', 25, 10, multiset[1,2,3,4,5]);
+insert into persons1 values(1, 'a2', 'd2', 25, 10, multiset[1,2,3,4,5]);
+insert into persons1 values(3, 'a2', 'd2', 25, 10, multiset[1,2,3,4,5]);
+insert into persons1 values(-2, 'a2', 'd2', 25, 10, multiset[1,2,3,4,5]);
+insert into persons1 values(-1, 'a2', 'd2', 25, 10, multiset[1,2,3,4,5]);
+
+
+CREATE TABLE persons2
+(
+id int NOT NULL,
+name varchar(255) NOT NULL,
+address varchar(255),
+age int,
+test double,
+score int multiset,
+PRIMARY KEY (id)
+);
+
+
+insert into persons2 values(2, 'a2', 'd2', 25, 10, multiset[1,2,3,4,5]);
+insert into persons3 values(3, 'a2', 'd2', 25, 10, multiset[1,2,3,4,5]);
+
+
+CREATE TABLE persons4
+(
+id varchar(255) NOT NULL,
+name varchar(255) NOT NULL,
+address varchar(255),
+age int NOT NULL,
+test double,
+PRIMARY KEY (id, name, age)
+);
+
+insert into persons4 values("3", 'a2', 'd2', 25, 10);
+insert into persons4 values("2", 'a2', 'd2', 25, 10);
