@@ -118,7 +118,7 @@ public class InstructionSyncChannel implements Channel, MessageListener {
         }
     }
 
-    public void sync(Instruction instruction) {
+    public void sync(Instruction instruction, String channelTag, String label) {
         if (isClosed()) {
             return;
         }
@@ -140,6 +140,7 @@ public class InstructionSyncChannel implements Channel, MessageListener {
                         }
                         chainRunner.forceFollow(() -> executeChain.reset(syncClock, false));
                     }
+                    log.info("StartControlUnitSync|{}|{}", instruction.clock, System.currentTimeMillis());
                     executeChain.forceFollow(instruction, () -> controlUnit.onSynced(mirror, instruction));
                     channel.send(new Message(null, instruction.encode()), true);
                     syncClock = instruction.clock;
@@ -149,6 +150,10 @@ public class InstructionSyncChannel implements Channel, MessageListener {
                 }
             }
         });
+        try {
+            log.info("End{}Sycn|{}|{}|{}", channelTag, label, instruction.operand[0], System.currentTimeMillis());
+        } catch (Exception e) {
+        }
     }
 
     public void executed(long clock) {

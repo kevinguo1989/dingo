@@ -296,8 +296,21 @@ public class Core {
         if (!isAvailable()) {
             throw new UnsupportedOperationException("Not available.");
         }
-        PhaseAck ack = new PhaseAck();
+        Object o = null;
+        try {
+            o = operand[0];
+        } catch (Exception e) {
+        }
+        PhaseAck ack = new PhaseAck(o);
+        try {
+            log.info("StartRunProcessInstructions|{}|{}|{}", opcode, operand[0], System.currentTimeMillis());
+        } catch (Exception e) {
+        }
         runner.forceFollow(() -> controlUnit.process(ack, (byte) instructions, (short) opcode, operand));
+        try {
+            log.info("EndRunProcessInstructions|{}|{}|{}", opcode, operand[0], System.currentTimeMillis());
+        } catch (Exception e) {
+        }
         return ack;
     }
 

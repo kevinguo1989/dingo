@@ -214,7 +214,9 @@ public class StoreInstance implements io.dingodb.store.api.StoreInstance {
             parts.get(part.getId()).exec(KVInstructions.id, KVInstructions.SET_OC, primaryKey,
                 RocksUtils.getValueWithNowTs(row)).join();
         } else {
+            log.info("startUpsertKeyValue|{}|{}", primaryKey, System.currentTimeMillis());
             parts.get(part.getId()).exec(KVInstructions.id, KVInstructions.SET_OC, primaryKey, row).join();
+            log.info("endUpsertKeyValue|{}|{}", primaryKey, System.currentTimeMillis());
         }
 
         return true;
@@ -242,10 +244,12 @@ public class StoreInstance implements io.dingodb.store.api.StoreInstance {
         }
 
         Part part = getPartByPrimaryKey(kvList.get(0).getPrimaryKey());
+        log.info("startBatchUpsertKeyValue|{}|{}|{}", kvList.get(0).getPrimaryKey(), System.currentTimeMillis(), kvList.size());
         parts.get(part.getId()).exec(
             KVInstructions.id, KVInstructions.SET_BATCH_OC,
             kvList.stream().flatMap(kv -> Stream.of(kv.getPrimaryKey(), kv.getValue())).toArray()
         ).join();
+        log.info("endBatchUpsertKeyValue|{}|{}|{}", kvList.get(0).getPrimaryKey(), System.currentTimeMillis(), kvList.size());
         return true;
     }
 

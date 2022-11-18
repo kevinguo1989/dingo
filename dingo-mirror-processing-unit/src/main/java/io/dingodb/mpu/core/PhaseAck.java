@@ -16,6 +16,8 @@
 
 package io.dingodb.mpu.core;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -23,12 +25,19 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 
+@Slf4j
 public final class PhaseAck {
 
     CompletableFuture<Long> clock = new CompletableFuture<>();
     CompletableFuture<Object> result;
 
+    Object pk = null;
+
     PhaseAck() {
+    }
+
+    PhaseAck(Object o) {
+        pk = o;
     }
 
     public long joinClock() {
@@ -44,8 +53,13 @@ public final class PhaseAck {
     }
 
     public <V> V join() {
+        log.info("Before PhaseAck clock join|{}|{}", pk, System.currentTimeMillis());
         joinClock();
-        return (V) result.join();
+        log.info("Before PhaseAck result join|{}|{}", pk, System.currentTimeMillis());
+        V r = (V) result.join();
+        log.info("After PhaseAck join|{}|{}", pk, System.currentTimeMillis());
+        return r;
+
     }
 
     public <V> V get() throws ExecutionException, InterruptedException {

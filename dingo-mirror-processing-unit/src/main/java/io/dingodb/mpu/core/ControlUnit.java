@@ -143,8 +143,17 @@ class ControlUnit {
         core.storage.saveInstruction(instruction.clock, instruction.encode());
         executeRunner.forceFollow(() -> chain.forceFollow(
             instruction, () -> core.executionUnit.execute(instruction, ack.result)));
-        Optional.ifPresent(firstChannel, () -> firstRunner.forceFollow(() -> firstChannel.sync(instruction)));
-        Optional.ifPresent(secondChannel, () -> secondRunner.forceFollow(() -> secondChannel.sync(instruction)));
+        try {
+            log.info("StartFirstChannelSync|{}|{}|{}", instruction.clock, instruction.operand[0], System.currentTimeMillis());
+        } catch (Exception e) {
+        }
+
+        Optional.ifPresent(firstChannel, () -> firstRunner.forceFollow(() -> firstChannel.sync(instruction, "FirstChannel", first.label)));
+        try {
+            log.info("StartSecondChannelSync|{}|{}|{}", instruction.clock, instruction.operand[0], System.currentTimeMillis());
+        } catch (Exception e) {
+        }
+        Optional.ifPresent(secondChannel, () -> secondRunner.forceFollow(() -> secondChannel.sync(instruction, "SecondChannel", second.label)));
     }
 
     protected void onSynced(CoreMeta mirror, Instruction instruction) {
@@ -155,6 +164,7 @@ class ControlUnit {
             firstChannel.executed(instruction.clock);
             secondChannel.executed(instruction.clock);
         }
+        log.info("AfterControlUnitSync|{}|{}|{}", instruction.clock, mirror.label, System.currentTimeMillis());
     }
 
 }

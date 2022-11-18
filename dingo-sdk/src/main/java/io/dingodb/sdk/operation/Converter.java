@@ -83,7 +83,9 @@ public final class Converter {
                 if (keys.length != definition.getPrimaryKeyCount()) {
                     log.error("Inconsistent number of primary keys:{}", keys);
                 }
-                return codec.encodeKey(keys);
+                byte[] encodekey = codec.encodeKey(keys);
+                log.info("EncodeKey|{}|{}", keys[0], encodekey);
+                return encodekey;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
