@@ -41,15 +41,15 @@ public interface ExecutorApi {
     }
 
     @ApiDeclaration
-    @TransferArgsCodecAnnotation(name = "UpsertKeyValueCodeCUsingKeyValue")
+    //@TransferArgsCodecAnnotation(name = "UpsertKeyValueCodeCUsingKeyValue")
     public boolean upsertKeyValue(Channel channel, CommonId schema, CommonId tableId, KeyValue row);
 
     @ApiDeclaration
-    @TransferArgsCodecAnnotation(name = "UpsertKeyValueCodeCUsingListKeyValue")
+    //@TransferArgsCodecAnnotation(name = "UpsertKeyValueCodeCUsingListKeyValue")
     public boolean upsertKeyValue(Channel channel, CommonId schema, CommonId tableId, List<KeyValue> rows);
 
     @ApiDeclaration
-    @TransferArgsCodecAnnotation(name = "UpsertKeyValueCodeCUsingByteArray")
+    //@TransferArgsCodecAnnotation(name = "UpsertKeyValueCodeCUsingByteArray")
     public boolean upsertKeyValue(Channel channel, CommonId schema, CommonId tableId, byte[] primaryKey, byte[] row);
 
     @ApiDeclaration

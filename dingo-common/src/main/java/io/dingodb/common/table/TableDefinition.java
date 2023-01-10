@@ -344,6 +344,16 @@ public class TableDefinition {
         return count;
     }
 
+    public List<String> getNormalIndexes() {
+        List<String> normalIndexes = new ArrayList<>();
+        for (Map.Entry<String, Index> entry : indexes.entrySet()) {
+            if (entry.getValue().getStatus() == IndexStatus.NORMAL) {
+                normalIndexes.add(entry.getKey());
+            }
+        }
+        return normalIndexes;
+    }
+
     public List<String> getBusyIndexes() {
         List<String> busyIndex = new ArrayList<>();
         for (Map.Entry<String, Index> entry : indexes.entrySet()) {

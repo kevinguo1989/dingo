@@ -42,7 +42,6 @@ dependencies {
     implementation project(":dingo-verify")
 
     implementation project(":dingo-net-netty")
-
 }
 
 task fatJar(type: Jar) {

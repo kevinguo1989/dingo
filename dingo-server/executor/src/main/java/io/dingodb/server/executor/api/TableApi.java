@@ -97,7 +97,7 @@ public class TableApi implements io.dingodb.server.api.TableApi {
                 ExecutorApi executorApi = ApiRegistry.getDefault().proxy(ExecutorApi.class, partConnector);
                 List<KeyValue> keyValues = executorApi.getKeyValueByKeyPrefix(null, null, id, new byte[]{1});
                 for (KeyValue keyValue : keyValues) {
-                    indexExecutor.insertIndex(indexExecutor.getOriRow(keyValue, tableDefinition), tableDefinition, index.getName());
+                    indexExecutor.insertIndex(indexExecutor.getRow(keyValue, tableDefinition), tableDefinition, index.getName());
                 }
             }
             index.setStatus(IndexStatus.NORMAL);

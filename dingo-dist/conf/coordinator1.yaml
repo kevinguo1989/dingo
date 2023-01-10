@@ -1,0 +1,15 @@
+cluster:
+    name: dingo
+exchange:
+    host: localhost
+    port: 19181
+server:
+    dataPath: /tmp/opt/dingo/data/meta
+    servers: localhost:19181
+    monitorPort: 9088
+security:
+    verify: false
+    auth: false
+net:
+    auth: false
+

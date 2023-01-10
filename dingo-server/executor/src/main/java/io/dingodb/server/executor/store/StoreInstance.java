@@ -673,10 +673,11 @@ public class StoreInstance implements io.dingodb.store.api.StoreInstance {
             KeyValue unfinishKV = indexExecutor.getUnfinishKV(oriKV);
             KeyValue finishedKV = indexExecutor.getFinishedKV(oriKV);
 
-            ExecutorApi unfinishedExecutorApi = indexExecutor.getExecutor(unfinishKV.getKey(), tableDefinition);
+
+            ExecutorApi unfinishExecutorApi = indexExecutor.getExecutor(unfinishKV.getKey(), tableDefinition);
             ExecutorApi finishedExecutorApi = indexExecutor.getExecutor(finishedKV.getKey(), tableDefinition);
 
-            if (!unfinishedExecutorApi.upsertKeyValue(null, null, id, unfinishKV)) {
+            if (!unfinishExecutorApi.upsertKeyValue(null, null, id, unfinishKV)) {
                 return false;
             }
 
@@ -694,7 +695,7 @@ public class StoreInstance implements io.dingodb.store.api.StoreInstance {
             if (!finishedExecutorApi.upsertKeyValue(null, null, id, finishedKV)) {
                 return false;
             }
-            if (!unfinishedExecutorApi.delete(null, null, id, unfinishKV.getPrimaryKey())) {
+            if (!unfinishExecutorApi.delete(null, null, id, unfinishKV.getPrimaryKey())) {
                 return false;
             }
             return true;
@@ -714,8 +715,11 @@ public class StoreInstance implements io.dingodb.store.api.StoreInstance {
 
         KeyValue oriKV = indexExecutor.getOriKV(row, tableDefinition);
         KeyValue finishedKV = indexExecutor.getFinishedKV(oriKV);
-        ExecutorApi finishedExecutorcApi = indexExecutor.getExecutor(finishedKV.getKey(), tableDefinition);
-        byte[] oldValue = finishedExecutorcApi.getValueByPrimaryKey(null, null, id, finishedKV.getPrimaryKey());
+        ExecutorApi finishedExecutorApi = indexExecutor.getExecutor(finishedKV.getKey(), tableDefinition);
+        byte[] oldValue = finishedExecutorApi.getValueByPrimaryKey(null, null, id, finishedKV.getPrimaryKey());
+        if (oldValue == null) {
+            return false;
+        }
         KeyValue oldKV = new KeyValue(oriKV.getKey(), oldValue);
 
         lock.lock();
@@ -731,16 +735,16 @@ public class StoreInstance implements io.dingodb.store.api.StoreInstance {
             KeyValue unfinishKV = indexExecutor.getUnfinishKV(oriKV);
             KeyValue oldDeleteKV = indexExecutor.getDeleteKV(oldKV);
 
-            ExecutorApi unfinishExecutorcApi = indexExecutor.getExecutor(unfinishKV.getKey(), tableDefinition);
-            ExecutorApi oldDeleteExecutorcApi = indexExecutor.getExecutor(oldDeleteKV.getKey(), tableDefinition);
+            ExecutorApi unfinishExecutorApi = indexExecutor.getExecutor(unfinishKV.getKey(), tableDefinition);
+            ExecutorApi oldDeleteExecutorApi = indexExecutor.getExecutor(oldDeleteKV.getKey(), tableDefinition);
 
             Object[] oldRow = indexExecutor.getRow(oldKV, tableDefinition);
 
-            if (!unfinishExecutorcApi.upsertKeyValue(null, null, id, unfinishKV)) {
+            if (!unfinishExecutorApi.upsertKeyValue(null, null, id, unfinishKV)) {
                 return false;
             }
 
-            if (!oldDeleteExecutorcApi.upsertKeyValue(null, null, id, oldDeleteKV)) {
+            if (!oldDeleteExecutorApi.upsertKeyValue(null, null, id, oldDeleteKV)) {
                 return false;
             }
 
@@ -754,16 +758,16 @@ public class StoreInstance implements io.dingodb.store.api.StoreInstance {
             if (currentTd.getVersion() != tableDefinitionVersion) {
                 throw new RuntimeException("table definition changed");
             }
-            if (!finishedExecutorcApi.delete(null, null, id, finishedKV.getPrimaryKey())) {
+            if (!finishedExecutorApi.delete(null, null, id, finishedKV.getPrimaryKey())) {
                 return false;
             }
-            if (!oldDeleteExecutorcApi.delete(null, null, id, oldDeleteKV.getPrimaryKey())) {
+            if (!oldDeleteExecutorApi.delete(null, null, id, oldDeleteKV.getPrimaryKey())) {
                 return false;
             }
-            if (!finishedExecutorcApi.upsertKeyValue(null, null, id, finishedKV)) {
+            if (!finishedExecutorApi.upsertKeyValue(null, null, id, finishedKV)) {
                 return false;
             }
-            if (!unfinishExecutorcApi.delete(null, null, id, unfinishKV.getPrimaryKey())) {
+            if (!unfinishExecutorApi.delete(null, null, id, unfinishKV.getPrimaryKey())) {
                 return false;
             }
             return true;
@@ -795,10 +799,14 @@ public class StoreInstance implements io.dingodb.store.api.StoreInstance {
             KeyValue finishedKV = indexExecutor.getFinishedKV(oriKV);
             KeyValue deleteKV = indexExecutor.getDeleteKV(oriKV);
 
-            ExecutorApi finishedExecutorcApi = indexExecutor.getExecutor(finishedKV.getKey(), tableDefinition);
-            ExecutorApi deleteExecutorcApi = indexExecutor.getExecutor(deleteKV.getKey(), tableDefinition);
+            ExecutorApi finishedExecutorApi = indexExecutor.getExecutor(finishedKV.getKey(), tableDefinition);
+            ExecutorApi deleteExecutorApi = indexExecutor.getExecutor(deleteKV.getKey(), tableDefinition);
 
-            if (!deleteExecutorcApi.upsertKeyValue(null, null, id, deleteKV)) {
+            if (finishedExecutorApi.getValueByPrimaryKey(null, null, id, finishedKV.getPrimaryKey()) == null) {
+                return false;
+            }
+
+            if (!deleteExecutorApi.upsertKeyValue(null, null, id, deleteKV)) {
                 return false;
             }
 
@@ -815,10 +823,10 @@ public class StoreInstance implements io.dingodb.store.api.StoreInstance {
                 throw new RuntimeException("table definition changed");
             }
 
-            if (!finishedExecutorcApi.delete(null, null, id, finishedKV.getPrimaryKey())) {
+            if (!finishedExecutorApi.delete(null, null, id, finishedKV.getPrimaryKey())) {
                 return false;
             }
-            if (!deleteExecutorcApi.delete(null, null, id, deleteKV.getPrimaryKey())) {
+            if (!deleteExecutorApi.delete(null, null, id, deleteKV.getPrimaryKey())) {
                 return false;
             }
 

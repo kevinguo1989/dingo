@@ -1,0 +1,39 @@
+cluster:
+    name: dingo
+exchange:
+    host: localhost
+    port: 19191
+server:
+    coordinatorExchangeSvrList: localhost:19181
+    dataPath: /tmp/opt/dingo/data/executor
+    monitorPort: 9099
+store:
+    dbPath: /tmp/opt/dingo/data/executor/db
+    dcfConfiguration:
+      tcBlockSize: 131072
+      tcBlockCacheSize: 67108864
+      cfArenaBlockSize: 67108864
+      cfMinWriteBufferNumberToMerge: 4
+      cfMaxWriteBufferNumber: 2
+      cfMaxCompactionBytes: 134217728
+      cfWriteBufferSize: 67108864
+      cfFixedLengthPrefixExtractor: 8
+      cfMaxBytesForLevelBase: 134217728
+      cfTargetFileSizeBase: 67108864
+    icfConfiguration:
+      tcBlockSize: 131072
+      tcBlockCacheSize: 67108864
+      cfArenaBlockSize: 67108864
+      cfMinWriteBufferNumberToMerge: 4
+      cfMaxWriteBufferNumber: 3
+      cfMaxCompactionBytes: 134217728
+      cfWriteBufferSize: 67108864
+      cfFixedLengthPrefixExtractor: 8
+      cfMaxBytesForLevelBase: 134217728
+      cfTargetFileSizeBase: 67108864
+    collectStatsInterval: 5
+security:
+    verify: false
+    auth: false
+net:
+    auth: false
